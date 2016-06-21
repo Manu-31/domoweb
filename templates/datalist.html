@@ -1,0 +1,21 @@
+{% extends "domoweb.html" %}
+{% block maincontent %}
+
+{% for obj in moduleList %}
+   Module = {{ obj.name }}<br><br>
+
+   {% for machin in obj.item %}
+      Item = {{ machin.name }}, valeur =  {{ machin.v }} <br>
+   {% endfor %}
+   <br>
+
+   {% for ac in obj.actions %}
+      Action = {{ ac }} <br>
+
+   {% endfor %}
+   <hr>
+{% endfor %}
+
+   
+{% endblock %}
+

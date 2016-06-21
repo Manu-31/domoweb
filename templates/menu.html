@@ -1,0 +1,7 @@
+<div id="menu">
+   <ul id="onglets">
+      {%- for menu in tabList -%}
+         <li class="{{ menu.name }}"><a href="{{ url_for('menu', item=menu.name) }}">{{menu.title.decode("utf-8")}}</a></li>
+      {%- endfor -%}
+   </ul>
+</div>

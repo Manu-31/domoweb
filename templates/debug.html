@@ -1,0 +1,6 @@
+{% extends "domoweb.html" %}
+{% block maincontent %}
+   {% for message in messages %}
+   <p class='log'>{{ message }}</p>
+   {% endfor %}
+{% endblock %}

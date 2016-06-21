@@ -1,0 +1,29 @@
+{% extends "domoweb.html" %}
+{% block maincontent %}
+<table border="0">
+  <tr>
+    <td  width="20%"><SPAN id="temperature">{{ waterTemp }}°</SPAN></td>
+    <td  width="20%"><SPAN id="temperature">{{ roomTemp }}°</SPAN></td>
+    <td>
+      <table border="0">
+        <tr>
+          {% if etatEclairage == 1 %}
+             <a id="lightButton" href="{{ url_for('do', item=currentMenu, action='lightOff') }}">Eteindre</a>
+          {% else %}
+             <a id="lightButton" href="{{ url_for('do', item=currentMenu, action='lightOn') }}">Eclairer</a>
+          {% endif %}
+        </tr> 
+        <tr>
+          <td>
+            {% if etatPompe ==  1 %}
+               <a id="genericButton" href="{{ url_for('do', item=currentMenu, action='pumpOff') }}">P. OFF</a>
+            {% else %}
+               <a id="genericButton" href="{{ url_for('do', item=currentMenu, action='pumpOn') }}">P. ON</a>
+            {% endif %}
+          </td>
+        </tr> 
+      </table>
+    </td>
+  </tr>
+</table>
+{% endblock %}
