@@ -25,6 +25,7 @@ import logging
 import oneWireDevice
 import webui
 import domoWebModule
+import gpioDevice
    
 #=============================================================
 # Let's go
@@ -37,11 +38,10 @@ import domoWebModule
 # cet ordre
 #   /etc/domoweb.cfg
 #   ${HOME}/.domoweb.cfg
-#   ./domoweb.cfg
 #-------------------------------------------------------------
 config = ConfigParser.ConfigParser()
 
-config.read(['/etc/domoweb.cfg', os.path.expanduser('~/.domoweb.cfg'), 'domoweb.cfg'])
+config.read(['/etc/domoweb.cfg', os.path.expanduser('~/.domoweb.cfg')])
 
 #  Le debogage
 logFileName = config.get('debug', 'logFileName')
@@ -64,6 +64,11 @@ logger.info("DomoWeb version " + domowebVersion + " running")
 # 1wire initialization
 #-------------------------------------------------------------
 oneWireDevice.oneWireInit(config, logger)
+
+#-------------------------------------------------------------
+# gpioDevices init
+#-------------------------------------------------------------
+gpioDevice.gpioDeviceInit()
 
 #-------------------------------------------------------------
 # Configuration of displayed tabs

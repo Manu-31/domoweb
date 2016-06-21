@@ -52,7 +52,8 @@ class aquarium(domoWebModule.domoWebModule) :
             del optionList[i]
 
             # create a gpioDevice
-            self.lightSwitch = gpioDevice.gpioDevice(value, gpioDevice.IN, gpioDevice.OFF)
+            print "Aquarium lightSwitch : " + value
+            self.lightSwitch = gpioDevice.gpioDevice(int(value), gpioDevice.IN, gpioDevice.OFF)
 
             self.logger.info("Aquarium lightSwitch : " + value + " created")
 
