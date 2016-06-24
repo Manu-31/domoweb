@@ -34,6 +34,23 @@ décrite dans le répertoire template. Toutes les variables fournies
 par le module (au travers de la méthode templateData() ) sont
 uilisables.
 
+Gestion des utilisateurs
+------------------------
+
+   Il est possible (mais non obligatoire) de se connecter à domoweb.
+L'affichage dépend de l'utilisateur connecté.
+
+   Les utilisateurs sont définis dans le fichier de config dans la
+section [users]. L'utilisateur admin est automatiquement défini. Il
+peut être redéfini dans le fichier de config de sorte à définir son
+mot de passe.
+
+   La visibilité de chaque module est définie dans la section de
+configuration du module. Le mot clef readAccess définit une liste
+des utilisateurs (séparés par une virgule) pouvant consulter le
+module. Si readAccess = * alors le module est public, tout le monde
+peut le consulter, même sans être connecté.
+
 Les fichiers
 ------------
 
@@ -43,14 +60,39 @@ Les fichiers
    webui.py
       La gestion de l'interface Web
 
-   domoWebModule
+   domoWebModule.py
       Définition de la classe générale des modules et de quelques
 classes de modules élémentaires
 
+   domoWebSignIn.py
+
+   Les modules
+   -----------
+   aquarium.py
+   piscine.py
+
+   Les devices
+   -----------
+   gpioDevice.py
+   oneWireDevice.py
+   
 A FAIRE
 
+   [urgent]
+
+   . composer la liste des onglets en fonction de l'utilisateur
+   . faire une page 'Accès restreint' ou juste un message ? A voir
+   avec le passage à bootstrap
+   . logguer les login/logout
+   . remplacer templateData par readParameters et update par
+   writeParameters et faire retourner un message d'erreur à ce dernier
+   (utiliser des choses comme la route pouet) puis modifier les docs
+   pour expliquer tout ça
+
    [general]
-   . session/login
+
+   . utiliser w3.CSS ? Ou bootstrap, ...
+   . ajouter un writeUser
    . gpioDevice (en cours) pour utiliser dans aquarium 
    . Mettre des get/set pour les paramètres (les chercher dans les
 attributs en fonction du nom fourni dans templateData ?)
@@ -63,7 +105,24 @@ d'une instance à l'autre.
 les paramètres modifiables. Une première tentative est en cours
 (datalist.html et route list). 
 
+   [user]
+   
+   . mettre un nom et un identifiant
+
    [debug]
 
    . mise en page
    . selection du niveau de log
+
+   [user]
+
+   . mots de passe chiffrés !
+
+REFERENCES
+
+   **Login**
+   https://flask-login.readthedocs.io/en/latest/
+   http://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-v-user-logins
+   http://gouthamanbalaraman.com/blog/minimal-flask-login-example.html
+   https://realpython.com/blog/python/introduction-to-flask-part-2-creating-a-login-page/
+   

@@ -5,7 +5,18 @@
 # basic modules.
 #
 #=============================================================
+import string
 import logging
+from domoWebUser import *
+
+def printUserList(l) :
+   if (l is None) :
+      print ("*")
+   else :
+      print "(SOL)"
+      for u in l :
+         print u.name() + " "
+      print "(EOL)"
 
 #=============================================================
 # A domoWebModule is characterized by
@@ -13,6 +24,8 @@ import logging
 # . title            to be displayed
 # . html             to be rendered
 # . templateData()   to tune the html before rendering
+# . setOptions()     to set some options (eg based on a config file)
+# . update()         set parameters based on a dict
 #=============================================================
 class domoWebModule :
    # We need to keep trace of the modules that have been defined
@@ -26,14 +39,30 @@ class domoWebModule :
       self.name = name
       self.title = name
       self.setHtml(html)
+      self.readUsers = []
+      self.writeUsers = []
       domoWebModule.domoWebModules.append(self)
 
    def setOptions(self, optionList):
-      for name, value in optionList :
+      ol = list(optionList)
+      for name, value in ol :
          print self.name + "."+ name + " = "+value
+         # Dealing with permissions
+         if (name == 'readaccess') :
+            if (value == "*") :
+               self.setReadUsers(None)
+            else :
+               for u in string.split(value, ',') :
+                  self.addReadUser(User.get(u))
+            del optionList[optionList.index((name, value))]
+
+   # Update some data from a dict (should be overridden)
+   def update(self, dataDict):
+      for name in dataDict :
+         print self.name + "."+ name + " <- "+dataDict[name]
 
          #WARNING: SHOULD WE SET ANY ATTRIBUTE ? 
-         setattr(self, name, value)
+         #setattr(self, name, value)
 
    def setTitle(self, title):
       self.title = title
@@ -46,6 +75,23 @@ class domoWebModule :
 
    def name(self):
       return self.name
+
+#-------------------------------------------------------------
+# User permissions
+#-------------------------------------------------------------
+   # set the reader list
+   def setReadUsers(self, userList) :
+      self.readUsers = userList
+   
+   # Add a single reader
+   def addReadUser(self, user) :
+      if (self.readUsers is None) :
+         self.readUsers = []
+      self.readUsers.append(user)
+ 
+   # Is user allowed to read data from this module ?
+   def userCanRead(self, user) :
+      return ((self.readUsers is None) or ((user in self.readUsers) and (user.is_authenticated)))
 
 #-------------------------------------------------------------
 # Pour pouvoir logguer sur une page web
@@ -111,5 +157,4 @@ class embed(domoWebModule) :
       templateData['url'] = self.url
 
       return templateData
-
 

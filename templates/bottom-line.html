@@ -1,1 +1,7 @@
 <HR>
+{% if current_user.is_authenticated %}
+Connected as {{ current_user.name() }} (<a href="{{ url_for('logout') }}">logout</a>)
+{% else %}
+Unknow user (<a href="{{ url_for('menu', item='login') }}">login</a>)
+{% endif %}
+
