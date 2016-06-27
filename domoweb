@@ -1,0 +1,32 @@
+#! /bin/sh
+# /etc/init.d/teleinfo
+#
+# to install this, use "update-rc.d domoweb defaults"
+
+SRV_PATH=/home/pi/domoweb/domoweb.py
+PYTHON=/usr/bin/python
+SRV_OPTIONS=""
+
+# Some things that run always
+touch /var/lock/domoweb
+PIDFILE=/var/run/domoweb.pid
+
+# Carry out specific functions when asked to by the system
+case "$1" in
+  start)
+    echo "Starting script domoweb "
+    #start-stop-daemon --background --make-pidfile --pidfile $PIDFILE --start --exec $PYTHON $SRV_PATH
+    start-stop-daemon --background --start --exec $PYTHON $SRV_PATH -- $SRV_OPTIONS
+    ;;
+  stop)
+    echo "Stopping script teleinfo"
+    #start-stop-daemon --pidfile $PIDFILE --stop $PYTHON $SRV_PATH
+    start-stop-daemon --stop --exec $PYTHON $SRV_PATH
+    ;;
+  *)
+    echo "Usage: /etc/init.d/domoweb {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0

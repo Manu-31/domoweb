@@ -56,6 +56,14 @@ class domoWebModule :
                   self.addReadUser(User.get(u))
             del optionList[optionList.index((name, value))]
 
+         if (name == 'writeaccess') :
+            if (value == "*") :
+               self.setWriteUsers(None)
+            else :
+               for u in string.split(value, ',') :
+                  self.addWriteUser(User.get(u))
+            del optionList[optionList.index((name, value))]
+
    # Update some data from a dict (should be overridden)
    def update(self, dataDict):
       for name in dataDict :
@@ -93,6 +101,20 @@ class domoWebModule :
    def userCanRead(self, user) :
       return ((self.readUsers is None) or ((user in self.readUsers) and (user.is_authenticated)))
 
+   # set the writer list
+   def setWriteUsers(self, userList) :
+      self.writeUsers = userList
+   
+   # Add a single writer
+   def addWriteUser(self, user) :
+      if (self.writeUsers is None) :
+         self.writeUsers = []
+      self.writeUsers.append(user)
+ 
+   # Is user allowed to read data from this module ?
+   def userCanWrite(self, user) :
+      return ((self.writeUsers is None) or ((user in self.writeUsers) and (user.is_authenticated)))
+
 #-------------------------------------------------------------
 # Pour pouvoir logguer sur une page web
 # (from https://gist.github.com/jhorneman/3181165)
@@ -103,7 +125,7 @@ class webPageHandler(logging.Handler):
         self.messages = []
 
         # Ajout d'un handler pour la page web
-        formatter = logging.Formatter('%(asctime)s - %(levelname)s:%(message)s')
+        formatter = logging.Formatter("<td>%(asctime)s </td><td> %(levelname)s </td><td>%(message)s</td>")
         self.setLevel(logging.INFO)
         self.setFormatter(formatter)
         logger = logging.getLogger('domoweb')

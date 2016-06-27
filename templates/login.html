@@ -1,7 +1,7 @@
 {% extends "domoweb.html" %}
 {% block maincontent %}
 {% if current_user.is_authenticated %}
-Mettre ici un redirect
+Vous êtes identifié comme '{{ current_user.name() }}'
 {% else %}
 
    <form class="w3-container" action="" method="post">

@@ -45,10 +45,7 @@ app = Flask(__name__)
 @app.route("/")
 #@login_required
 def accueil():
-   templateData = {
-      'tabList' :  domoWebModule.domoWebModule.domoWebModules
-   }
-   return render_template('help.html', **templateData)
+   return redirect(url_for('menu', item='aide'))
 
 #=============================================================
 # Gestion de l'authentification
@@ -89,25 +86,51 @@ def readValue(module, value):
 @app.route("/menu/<item>", methods=['GET', 'POST'])
 #@login_required
 def menu(item):
-   templateData = {
-      'tabList' :  domoWebModule.domoWebModule.domoWebModules,
-      'currentMenu' : item
-   }
-
    # Searching the item
    r = [x for x in domoWebModule.domoWebModule.domoWebModules if x.name == item]
    # WARNING : r could be empty 
    choice = r[0]
 
+   # Data update from the user
    if request.method == 'POST':
-      choice.update(request.form)
+      if (choice.userCanWrite(current_user)) :
+         # Applying the update on the module
+         choice.update(request.form)
+
+         tabList = []
+         for mod in domoWebModule.domoWebModule.domoWebModules :
+            if mod.userCanRead(current_user)  :
+               tabList.append(mod)
+         templateData = {
+            'tabList' :  tabList,
+            'currentMenu' : item
+         }
+
+         # Updating displayed data
+         templateData.update(choice.templateData())
+ 
+         # Rendering the page
+         return render_template(choice.html, **templateData)
+      else :
+         return render_template("login.html", error="Vous n'avez pas les droits suffisants")
+   
+   # Data display
    else :
       if (choice.userCanRead(current_user)) :
+         tabList = []
+         for mod in domoWebModule.domoWebModule.domoWebModules :
+            if mod.userCanRead(current_user)  :
+               tabList.append(mod)
+         templateData = {
+            'tabList' :  tabList,
+            'currentMenu' : item
+         }
+
          templateData.update(choice.templateData())
+         return render_template(choice.html, **templateData)
       else :
          return render_template("login.html", error="Vous n'avez pas les droits suffisants")
          
-   return render_template(choice.html, **templateData)
 
 @app.route('/menu/pouet', methods=['GET', 'POST'])
 def pouet():
