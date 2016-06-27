@@ -1,6 +1,15 @@
 {% extends "domoweb.html" %}
 {% block maincontent %}
-   {% for message in messages %}
-   <p class='log'>{{ message }}</p>
-   {% endfor %}
+      <table class="w3-table w3-striped">
+      <tr>
+         <th>Date</th>
+         <th>Heure</th>
+         <th>Message</th>
+       </tr>
+       {% for message in messages %}
+       <tr>
+          <td>{{ message }}</td>
+       </tr>
+       {% endfor %}
+      </table>
 {% endblock %}

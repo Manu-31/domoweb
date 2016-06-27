@@ -1,7 +1,9 @@
-<HR>
-{% if current_user.is_authenticated %}
-Connected as {{ current_user.name() }} (<a href="{{ url_for('logout') }}">logout</a>)
+{% if error %}
+   <div class="w3-container w3-red"  style="position:absolute;right:0;bottom:0;left:0">
+      <strong>Error:</strong> {{ error }}
+   </div>
 {% else %}
-Unknow user (<a href="{{ url_for('menu', item='login') }}">login</a>)
+      <div class="w3-container w3-teal"  style="position:absolute;right:0;bottom:0;left:0">
+         Tout baigne !
+      </div>
 {% endif %}
-

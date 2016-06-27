@@ -3,20 +3,20 @@
 {% if current_user.is_authenticated %}
 Mettre ici un redirect
 {% else %}
-<div class="container">
-      <h1>Please login</h1>
+
+   <form class="w3-container" action="" method="post">
+      <input class="w3-input" type="text" placeholder="Username"
+	     name="username" value="{{ request.form.username }}">
+      <label>Login</label>
+      <input class="w3-input" type="password" placeholder="Password"
+	     name="password" value="{{ request.form.password }}">
+      <label>Mot de passe</label>
       <br>
-      <form action="" method="post">
-        <input type="text" placeholder="Username" name="username" value="{{
-          request.form.username }}">
-         <input type="password" placeholder="Password" name="password" value="{{
-          request.form.password }}">
-        <input class="btn btn-default" type="submit" value="Login">
-      </form>
-      {% if error %}
-        <p class="error"><strong>Error:</strong> {{ error }}
-      {% endif %}
-    </div>
+      
+      <input class="w3-check" type="checkbox">
+      <label class="w3-validate">Remember me</label>
+	<button class="w3-btn w3-blue" type="submit"> Register</button>
+   </form>
 {% endif %}
 
 {% endblock %}

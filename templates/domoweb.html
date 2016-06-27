@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html>
-   <head>
+<html style="height:100%;">
+  <head>
       {% include 'head.html' %}
       <title>DomoWeb by Manu</title>
    </head>
-   <body>
+   <body  style="position:absolute;right:0;bottom:0;left:0;top:0">
       {% include 'menu.html' %}
-      {% block maincontent %} {% endblock %}
+      <div class="w3-container" style="position:absolute;right:0;bottom:0px;left:0;top:2.5rem;overflow:scroll;">
+        {% block maincontent %} {% endblock %}
+      </div>
       {% include 'bottom-line.html' %}
    </body>
 </html>
