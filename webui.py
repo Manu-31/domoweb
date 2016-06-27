@@ -105,7 +105,7 @@ def menu(item):
       if (choice.userCanRead(current_user)) :
          templateData.update(choice.templateData())
       else :
-         return redirect(url_for('menu', item='aide'))
+         return render_template("login.html", error="Vous n'avez pas les droits suffisants")
          
    return render_template(choice.html, **templateData)
 

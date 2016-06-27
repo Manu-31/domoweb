@@ -75,15 +75,20 @@ classes de modules élémentaires
    -----------
    gpioDevice.py
    oneWireDevice.py
+  
+URGENT
+
+   [user]
    
+   . logguer les login/logout
+ 
 A FAIRE
 
-   [urgent]
-
+   [webui]
    . composer la liste des onglets en fonction de l'utilisateur
-   . faire une page 'Accès restreint' ou juste un message ? A voir
-   avec le passage à bootstrap
-   . logguer les login/logout
+   . faire une page 'Accès restreint' ou juste un message ? Que faire
+   quand on essaie d'accéder une ressources interdite ? Sachant que
+   le point ci dessus devrait permettre de limiter.
    . remplacer templateData par readParameters et update par
    writeParameters et faire retourner un message d'erreur à ce dernier
    (utiliser des choses comme la route pouet) puis modifier les docs
@@ -91,7 +96,6 @@ A FAIRE
 
    [general]
 
-   . utiliser w3.CSS ? Ou bootstrap, ...
    . ajouter un writeUser
    . gpioDevice (en cours) pour utiliser dans aquarium 
    . Mettre des get/set pour les paramètres (les chercher dans les
@@ -111,12 +115,15 @@ les paramètres modifiables. Une première tentative est en cours
 
    [debug]
 
-   . mise en page
+   . mise en page (table)
    . selection du niveau de log
 
    [user]
 
    . mots de passe chiffrés !
+
+EN COURS
+   . utiliser w3.CSS ? Ou bootstrap, ...
 
 REFERENCES
 
