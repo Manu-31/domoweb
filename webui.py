@@ -21,7 +21,6 @@ from flask import Flask, url_for, render_template, redirect, Response, request
 from flask_login import \
    LoginManager, UserMixin, \
    login_required, login_user, logout_user, current_user
-from wtforms import *
 
 import sys
 import types

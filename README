@@ -85,7 +85,6 @@ URGENT
 A FAIRE
 
    [webui]
-   . composer la liste des onglets en fonction de l'utilisateur
    . faire une page 'Accès restreint' ou juste un message ? Que faire
    quand on essaie d'accéder une ressources interdite ? Sachant que
    le point ci dessus devrait permettre de limiter.
@@ -95,8 +94,6 @@ A FAIRE
    pour expliquer tout ça
 
    [general]
-
-   . ajouter un writeUser
    . gpioDevice (en cours) pour utiliser dans aquarium 
    . Mettre des get/set pour les paramètres (les chercher dans les
 attributs en fonction du nom fourni dans templateData ?)
@@ -110,20 +107,23 @@ les paramètres modifiables. Une première tentative est en cours
 (datalist.html et route list). 
 
    [user]
-   
    . mettre un nom et un identifiant
-
-   [debug]
-
-   . mise en page (table)
-   . selection du niveau de log
-
-   [user]
-
    . mots de passe chiffrés !
 
+   [debug]
+   . selection du niveau de log
+
+
 EN COURS
+   [templates]
    . utiliser w3.CSS ? Ou bootstrap, ...
+
+FAIT
+   [debug]
+   . mise en page (table)
+
+   [webui]
+   . composer la liste des onglets en fonction de l'utilisateur
 
 REFERENCES
 

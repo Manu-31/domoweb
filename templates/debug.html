@@ -3,12 +3,12 @@
       <table class="w3-table w3-striped">
       <tr>
          <th>Date</th>
-         <th>Heure</th>
+         <th>Niveau</th>
          <th>Message</th>
        </tr>
        {% for message in messages %}
        <tr>
-          <td>{{ message }}</td>
+          {{ message |safe}}
        </tr>
        {% endfor %}
       </table>
