@@ -1,28 +1,34 @@
 {% extends "domoweb.html" %}
 {% block maincontent %}
-<table border="0">
-  <tr>
-    <td  width="20%"><SPAN id="temperature">{{ waterTemp }}°</SPAN></td>
-    <td>
-      <table border="0">
-        <tr>
-          {% if etatEclairage == 1 %}
-             <a id="lightButton" href="{{ url_for('do', item=currentMenu, action='lightOff') }}">Eteindre</a>
-          {% else %}
-             <a id="lightButton" href="{{ url_for('do', item=currentMenu, action='lightOn') }}">Eclairer</a>
-          {% endif %}
-        </tr> 
-        <tr>
-          <td>
-            {% if etatPompe ==  1 %}
-               <a id="genericButton" href="{{ url_for('do', item=currentMenu, action='pumpOff') }}">P. OFF</a>
-            {% else %}
-               <a id="genericButton" href="{{ url_for('do', item=currentMenu, action='pumpOn') }}">P. ON</a>
-            {% endif %}
-          </td>
-        </tr> 
-      </table>
-    </td>
-  </tr>
-</table>
+ <div class="w3-row">
+   <div class="w3-col s6 w3-blue w3-center"><p>
+      <div class="w3-medium">Piscine</div>
+      <div class="w3-jumbo"> {{ waterTemp }}°</div>
+   </p></div>
+   <div class="w3-col s6 w3-green w3-center"><p>
+      <div class="w3-medium">Local</div>
+      <div class="w3-jumbo"> {{ outsideTemp }}°</div>
+   </p></div>
+</div>
+
+<br>
+ <div class="w3-row">
+   <div class="w3-col s4  w3-center"><p>
+       {% if etatEclairage == 1 %}
+          <i class="fa fa-lightbulb-o w3-large"></i>
+          <a class="w3-btn w3-green" value="Eteindre" href="{{ url_for('do', item=currentMenu, action='lightOff') }}">
+          <i class="fa fa-lightbulb-o  w3-large"></i> Eteindre</a>
+       {% else %}
+          <a class="w3-btn w3-black" value="Allumer" href="{{ url_for('do', item=currentMenu, action='lightOff') }}">
+          <i class="fa fa-lightbulb-o  w3-large"></i> Allumer</a>
+       {% endif %}
+   </p></div>
+   <div class="w3-col s4  w3-center"><p>
+    <input class="w3-btn" value="Filtration">
+   </p></div>
+   <div class="w3-col s4  w3-center"><p>
+    <input class="w3-btn" value="Oxygène">
+   </p></div>
+</div>
+
 {% endblock %}

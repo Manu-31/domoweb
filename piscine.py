@@ -58,7 +58,7 @@ class piscine(domoWebModule.domoWebModule) :
 
          # Outside thermometer
          if ('outsidetemp' == option) :
-            roomTemp = (value)
+            outsideTemp = (value)
             i = optionList.index((option, value))
             del optionList[i]
 
@@ -83,8 +83,8 @@ class piscine(domoWebModule.domoWebModule) :
    def templateData(self):
       templateData = {}
       templateData['waterTemp'] = round(float(self.waterThermometer.getTemperature()), 1)
-      if (hasattr(self, 'roomThermometer')) :
-         templateData['roomTemp'] = self.roomThermometer.getTemperature()
+      if (hasattr(self, 'outsideThermometer')) :
+         templateData['outsideTemp'] = self.outsideThermometer.getTemperature()
       templateData['etatEclairage'] = self.etatEclairage
       templateData['etatPompe'] = self.etatPompe
       self.tempLogger.logData({'waterTemp': templateData['waterTemp']})

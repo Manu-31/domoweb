@@ -109,7 +109,7 @@ def menu(item):
          templateData.update(choice.templateData())
  
          # Rendering the page
-         return render_template(choice.html, **templateData)
+         return render_template(choice.html, notification="Coucou", **templateData)
       else :
          return render_template("login.html", error="Vous n'avez pas les droits suffisants")
    
@@ -126,7 +126,7 @@ def menu(item):
          }
 
          templateData.update(choice.templateData())
-         return render_template(choice.html, **templateData)
+         return render_template(choice.html, notification="TUTu", **templateData)
       else :
          return render_template("login.html", error="Vous n'avez pas les droits suffisants")
          
