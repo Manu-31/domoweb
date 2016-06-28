@@ -109,7 +109,7 @@ def menu(item):
          templateData.update(choice.templateData())
  
          # Rendering the page
-         return render_template(choice.html, notification="Coucou", **templateData)
+         return render_template(choice.html, **templateData)
       else :
          return render_template("login.html", error="Vous n'avez pas les droits suffisants")
    
@@ -124,9 +124,12 @@ def menu(item):
             'tabList' :  tabList,
             'currentMenu' : item
          }
-
          templateData.update(choice.templateData())
-         return render_template(choice.html, notification="TUTu", **templateData)
+         notification = request.args.get('notification', '')
+         if (notification is None) :
+            return render_template(choice.html, **templateData)
+         else :
+            return render_template(choice.html, notification=notification, **templateData)
       else :
          return render_template("login.html", error="Vous n'avez pas les droits suffisants")
          
@@ -195,7 +198,7 @@ def do(item, action):
       # Searching and calling the corresponding action
       getattr(choice, action)()
    
-   return redirect(url_for("menu", item=item))
+   return redirect(url_for("menu", item=item, notification="C'est fait"))
 
 #-------------------------------------------------------------
 # List all available data
