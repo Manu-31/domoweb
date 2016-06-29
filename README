@@ -77,6 +77,10 @@ classes de modules élémentaires
    oneWireDevice.py
   
 URGENT
+ 
+   . Faire une piscine utilisable et une en lecture seule, pour voir.
+   On peut imaginer quel la version RO ne soit pas visble des utilisateurs
+   qui ont l'autre. Ou que le html diffère pour la version publique, ...
 
    [user]
    

@@ -27,6 +27,8 @@ import types
 import logging
 import json
 
+import domoTask
+
 # Import available modules
 from domoWebModule import *
 from aquarium import *
@@ -259,6 +261,8 @@ def buildWebui(config):
       if (config.has_section(modName)) :
          domoModule.setOptions(config.items(modName))
 
+   domoTask.domoTaskInit(logger)
+   
 #-------------------------------------------------------------
 # Run the web server
 #-------------------------------------------------------------
