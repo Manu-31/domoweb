@@ -40,7 +40,6 @@ def runTaskQueue() :
    global logger
    logger.info("Starting to run task queue")
    while (1 == 1) :
-      print "Coucou"
       newTask.clear() # Warning, should be protected
       tsk = taskQueue.get(True)
       f = tsk[1]['func']
@@ -49,16 +48,15 @@ def runTaskQueue() :
       
       # Is it time ?
       if (tsk[0] > datetime.datetime.now() + datetime.timedelta(seconds=2)) :
-         print "It's to early for " + d
          # Let's requeue the event
          taskQueue.put(tsk)
 
          # We should sleep now ! But we will wait so that
          # we could be warned if a new (earlier) task is queued
-         print "Waiting for " + str((tsk[0] - datetime.datetime.now()).total_seconds())
          newTask.wait((tsk[0] - datetime.datetime.now()).total_seconds())
       elif (tsk[0] < datetime.datetime.now() - datetime.timedelta(seconds=2)) :
-         print "It's to late for " + d
+         #print "It's to late for " + d
+	 pass
       else :
          # Re queue periodic task
          if (period != 0) :
@@ -67,7 +65,6 @@ def runTaskQueue() :
          # Actually running the task
          logger.info("Running task " + d)
          f(d)
-
           
 #========================================================
 # Subsystem initalization
@@ -76,9 +73,12 @@ def domoTaskInit(l) :
    global logger
    logger = l
    logger.info("Initializing domoTask subsystem")
+
+   # These 3 tasks should be removed
    queueTask(datetime.datetime.now() + datetime.timedelta(seconds=30), affiche, "Plus tard")
    queueTask(0, affiche, "Maintenant")
    queueTask(datetime.datetime.now(), affiche, "Periode", datetime.timedelta(seconds=5))
+
    mainThread = threading.Thread(target=runTaskQueue)
    mainThread.start()
    
