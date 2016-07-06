@@ -6,6 +6,7 @@
 import ConfigParser
 import urllib
 import string
+import datetime
 
 import oneWireDevice
 
@@ -73,9 +74,20 @@ class domoWebThermometer :
 class remoteThermometer(domoWebThermometer) :
    def __init__(self, url) :
       self.source = domoWebReadOnlyRemoteDevice(url)
+      self.historique = []
 
    def getTemperature(self) :
-      return self.source.getValue()
+      value = self.source.getValue()
+      self.historique.append(((datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds()*1000, value))
+      return value
+
+   def getHistory(self) :
+      result = {'name' : 'temp',
+                't0' : self.historique[0][0],
+                'p' : datetime.timedelta(minutes=5),
+                'data' : self.historique}
+      return result
+   
   
 #--------------------------------------------------------
 #   Create a thermometer from a description.

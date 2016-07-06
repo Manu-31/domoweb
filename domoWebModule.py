@@ -47,6 +47,11 @@ class domoWebModule :
       ol = list(optionList)
       for name, value in ol :
          print self.name + "."+ name + " = "+value
+
+         if (name == "html") :
+            self.setHtml(value)
+            del optionList[optionList.index((name, value))]
+
          # Dealing with permissions
          if (name == 'readaccess') :
             if (value == "*") :

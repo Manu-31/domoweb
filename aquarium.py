@@ -78,7 +78,15 @@ class aquarium(domoWebModule.domoWebModule) :
          templateData['roomTemp'] = self.roomThermometer.getTemperature()
       templateData['etatEclairage'] = self.etatEclairage
       templateData['etatPompe'] = self.etatPompe
-      self.tempLogger.logData({'waterTemp': templateData['waterTemp']})
+
+      templateData['tempHist'] = []
+      # Building waterTemp history
+      templateData['tempHist'].append(("Eau", self.waterThermometer.getHistory()))
+
+      # Building airTemp history
+      templateData['tempHist'].append(("Air", self.roomThermometer.getHistory()))
+
+      self.tempLogger.logData({'waterTemp': templateData['waterTemp']}) # WARNING : it was a test
       return templateData
 
    def lightOn(self):
