@@ -1,0 +1,30 @@
+{% extends "domoweb.html" %}
+{% block maincontent %}
+<div class="w3-row">
+  <div class="w3-col m4 l3">
+    <div class="w3-container" style="padding-bottom:1rem;padding-top:2rem;">
+      <span class="w3-tag w3-green w3-xxlarge w3-round-large  w3-center">
+        <div class="w3-jumbo"> {{ roomTemp }}°</div>
+        <div class="w3-medium">Air</div>
+      </span>
+    </div>
+
+    <div class="w3-container" style="padding-bottom:2rem">
+      <span class="w3-tag w3-blue w3-xxlarge w3-round-large  w3-center">
+        <div class="w3-jumbo"> {{ waterTemp }}°</div>
+        <div class="w3-medium">Eau</div>
+      </span>
+    </div>
+
+    <div class="w3-container" style="padding-bottom:2rem;">
+      <i class="fa fa-lightbulb-o w3-xxxlarge" style="padding:1rem;"></i>
+      <i class="fa fa-refresh w3-xxxlarge" style="padding:1rem;"></i>
+      <i class="fa fa-cloud w3-xxxlarge" style="padding:1rem;"></i>
+
+    </div>    
+  </div>
+  <div class="w3-col m8 l9">
+     {% include 'temphist.html' %}
+  </div>
+</div>
+{% endblock %}

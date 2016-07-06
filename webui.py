@@ -85,6 +85,8 @@ def readValue(module, value):
 @app.route("/menu/<item>", methods=['GET', 'POST'])
 #@login_required
 def menu(item):
+   global logger
+   
    # Searching the item
    r = [x for x in domoWebModule.domoWebModule.domoWebModules if x.name == item]
    # WARNING : r could be empty 
@@ -108,7 +110,8 @@ def menu(item):
          # Updating displayed data
          templateData.update(choice.templateData())
  
-         # Rendering the page
+         # Rendering the pagea
+         logger.info("Rendering "+ choice.html +" for module "+choice.name)
          return render_template(choice.html, **templateData)
       else :
          return render_template("login.html", error="Vous n'avez pas les droits suffisants")
@@ -126,6 +129,8 @@ def menu(item):
          }
          templateData.update(choice.templateData())
          notification = request.args.get('notification', '')
+         # Rendering the pagea
+         logger.info("Rendering "+ choice.html +" for module "+choice.name)
          if (notification is None) :
             return render_template(choice.html, **templateData)
          else :
@@ -232,6 +237,7 @@ def strToClass(s):
 # Build the webui from config file
 #=============================================================
 def buildWebui(config):
+   global logger
    logger = logging.getLogger('domoweb')
 
    # Create users : admin and the one defined in config
