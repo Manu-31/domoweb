@@ -26,7 +26,8 @@ import oneWireDevice
 import webui
 import domoWebModule
 import gpioDevice
-   
+import domoWebDataCache
+  
 #=============================================================
 # Let's go
 #=============================================================
@@ -59,6 +60,11 @@ else :
                        level=logging.DEBUG)
 logger = logging.getLogger('domoweb')
 logger.info("DomoWeb version " + domowebVersion + " running")
+
+#-------------------------------------------------------------
+# cache initialisation
+#-------------------------------------------------------------
+domoWebDataCache.domoWebDataCacheInit(logger)
 
 #-------------------------------------------------------------
 # 1wire initialization

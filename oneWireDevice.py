@@ -7,6 +7,7 @@ import ConfigParser
 import datetime
 
 from domoWebDevice import *
+from domoWebDataCache import *
 
 class oneWireDevice :
    oneWireRootDir = '/sys/bus/w1/devices'
@@ -18,8 +19,10 @@ class oneWireThermometer(oneWireDevice, domoWebThermometer) :
       domoWebThermometer.__init__(self)
       oneWireDevice.__init__(self, address)
       self.deviceFile = oneWireDevice.oneWireRootDir + '/' + address + '/w1_slave'
-      self.historique = []
-
+      
+      #self.historique = []
+      self.historique = domoWebCircularDataCache(24*12)
+      
    def read_temp_raw(self):
       f = open(self.deviceFile, 'r')
       lines = f.readlines()
@@ -41,11 +44,13 @@ class oneWireThermometer(oneWireDevice, domoWebThermometer) :
    def getTemperature(self) :
       print "**** getTemperature " + self.deviceFile
       value = self.getValue()
-      self.historique.append((int((datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds()*1000), value))
+      #self.historique.append((int((datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds()*1000), value))
+      self.historique.cacheData((int((datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds()*1000), value))
+      
       return value
 
    def getHistory(self) :
-      return self.historique
+      return self.historique.getData()
    
 # Initialization of global parameters
 def oneWireInit(config, logger) :
