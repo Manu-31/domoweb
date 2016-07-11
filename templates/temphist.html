@@ -9,9 +9,6 @@ $(function () {
             text: 'Suivi de la température',
             x: -20 //center
         },
-        chart: {
-            type: 'spline'
-        },
 
         xAxis: {    // A raffiner !
             type: 'datetime',
@@ -57,7 +54,8 @@ $(function () {
         series: [
             {% for h in tempHist %}
             {
-            name: "{{ h[0] }}",
+             type: 'spline',
+           name: "{{ h[0] }}",
             data: [
                {% for v in h[1] %}
                   [ {{ v[0]|safe }} , {{ v[1] }} ]
