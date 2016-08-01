@@ -11,35 +11,15 @@ from domoWebDataCache import *
 import domoTask
 
 #========================================================
-# Low level devices (data sources)
-#========================================================
-class domoWebLowLevelDevice() :
-   def __init__(self) :
-      pass
-
-   def getValue(self) :
-      pass
-
-#--------------------------------------------------------
-# A remote device is a device used through a remote web
-# access. Should be replaced soon by COAP objects
-#--------------------------------------------------------
-class domoWebRemoteDevice(domoWebLowLevelDevice) :
-   def __init__(self, url) :
-      domoWebLowLevelDevice.__init__(self)
-      self.url = url
-
-   # Re definition of attributes
-   def getValue(self) :
-      socket = urllib.urlopen(self.url)
-      return socket.read()
-  
-#========================================================
 # High level devices (thermometer, switch, ...)
 #========================================================
 
 #--------------------------------------------------------
-# A basic device
+# A basic device.
+#
+# A device can give a value with getValue()
+# When a device is created, an history is built and values
+# are automatically logged
 #--------------------------------------------------------
 class domoWebDevice() :
    def __init__(self) :
@@ -47,8 +27,6 @@ class domoWebDevice() :
       self.runPeriodicGetData(datetime.timedelta(seconds=10))
 
    def logData(self) :
-      print ("Couou")
-      print self
       value = self.getValue()
       self.historic.cacheData((int((datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds()*1000), value))
       
@@ -58,9 +36,9 @@ class domoWebDevice() :
    def getHistory(self) :
       return self.historic.getData()
 
-#--------------------------------------------------------
+#========================================================
 # A basic on/off device
-#--------------------------------------------------------
+#========================================================
 class domoWebSwitchDevice(domoWebDevice) :
    def __init__(self) :
       domoWebDevice.__init__(self)
@@ -68,8 +46,10 @@ class domoWebSwitchDevice(domoWebDevice) :
       
    def on(self) :
       self.status = 1
+      
    def off(self) :
       self.status = 0
+
    def getValue(self) :
       return self.status
    
@@ -91,19 +71,11 @@ class remoteSwitchDevice(domoWebSwitchDevice) :
       domoWebSwitchDevice.off(self)
   
 #========================================================
-# high level devices
-#========================================================
-
-#--------------------------------------------------------
 # A thermometer can give ... temperatures !
-# It also has an historic (one temperature every 10 secs
-# on 24*12 slots)
-#--------------------------------------------------------
+#========================================================
 class domoWebThermometer(domoWebDevice) :
    def __init__(self) :
       domoWebDevice.__init__(self)
-      #self.historic = domoWebCircularDataCache(24*12)
-      #self.runPeriodicGetTemperature(datetime.timedelta(seconds=10))
 
    def getTemperature(self) :
       pass
@@ -111,17 +83,6 @@ class domoWebThermometer(domoWebDevice) :
    def getValue(self) :
       self.getTemperature()
       
-   #def logTemperature(self) :
-    #  value = self.getTemperature()
-    #  self.historic.cacheData((int((datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds()*1000), value))
-      
-   #def runPeriodicGetTemperature(self, delaySec) :
-   #   domoTask.queueTask(0, domoWebThermometer.logTemperature, self, delaySec)
-      
-   #def getHistory(self) :
-   #   return self.historic.getData()
-   
-
 #--------------------------------------------------------
 # A remote thermometer
 #--------------------------------------------------------
