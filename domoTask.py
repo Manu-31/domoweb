@@ -7,6 +7,7 @@
 
 import threading, Queue
 import time, datetime
+import logging
 
 # We use a priority queue where priority is the date
 taskQueue = Queue.PriorityQueue()
@@ -25,9 +26,12 @@ def affiche(m) :
 #  So a time dt f(d) is ran
 #========================================================
 def queueTask(dt, f, d, p=0) :
+   global logger
+   print "New task dt="+str(dt)+" period "+str(p) + " data :"
+   print d
    if (dt == 0) :
       dt = datetime.datetime.now() 
-   logger.info("Queueing new event for "+dt.isoformat())
+#   logger.info("Queueing new event for "+dt.isoformat())
    taskQueue.put((dt, {'func' : f, 'data' : d, 'period' : p}))
    # Let's wake up the main thread (note : this will raise
    # some spurious wakeups, but never mind !)
@@ -55,7 +59,8 @@ def runTaskQueue() :
          # we could be warned if a new (earlier) task is queued
          newTask.wait((tsk[0] - datetime.datetime.now()).total_seconds())
       elif (tsk[0] < datetime.datetime.now() - datetime.timedelta(seconds=2)) :
-         #print "It's to late for " + d
+         #print "It's to late for "
+         #print d
 	 pass
       else :
          # Re queue periodic task
@@ -63,7 +68,7 @@ def runTaskQueue() :
             queueTask(datetime.datetime.now()+period, f, d, period)
 
          # Actually running the task
-         logger.info("Running task " + d)
+         logger.info("Running task")
          f(d)
           
 #========================================================
@@ -75,9 +80,9 @@ def domoTaskInit(l) :
    logger.info("Initializing domoTask subsystem")
 
    # These 3 tasks should be removed
-   queueTask(datetime.datetime.now() + datetime.timedelta(seconds=30), affiche, "Plus tard")
-   queueTask(0, affiche, "Maintenant")
-   queueTask(datetime.datetime.now(), affiche, "Periode", datetime.timedelta(seconds=5))
+   #queueTask(datetime.datetime.now() + datetime.timedelta(seconds=30), affiche, "Plus tard")
+   #queueTask(0, affiche, "Maintenant")
+   #queueTask(datetime.datetime.now(), affiche, "Periode", datetime.timedelta(seconds=5))
 
    mainThread = threading.Thread(target=runTaskQueue)
    mainThread.start()

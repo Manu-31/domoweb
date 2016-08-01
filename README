@@ -34,6 +34,17 @@ décrite dans le répertoire template. Toutes les variables fournies
 par le module (au travers de la méthode templateData() ) sont
 uilisables.
 
+Les devices
+-----------
+
+   Dans domoweb, la notion de device couvre tous les périphériques
+d'E/S permettant de lire des mesures ou de déclancher des
+actions. Deux niveaux de devices sont définis : les devices de bas
+niveau permettent d'utiliser le matériel réel (via de l'i2c, du 1
+wire, ...) et les devices de haut niveau décrivent des fonctions un
+peu plus abstraites (thermomètre, switch, ...)
+
+
 Gestion des utilisateurs
 ------------------------
 
@@ -50,6 +61,21 @@ configuration du module. Le mot clef readAccess définit une liste
 des utilisateurs (séparés par une virgule) pouvant consulter le
 module. Si readAccess = * alors le module est public, tout le monde
 peut le consulter, même sans être connecté.
+
+Le fichier de configuration
+---------------------------
+
+   Le fichier ~/.domoweb.cfg ou /etc/domoweb.cfg permet la
+configuration pour l'utilisateur. Un exemple complet dans le
+répertoire de domoweb est documenté. Le fichier contient les sections
+suivantes
+
+[debug] pour le debogage
+
+[users] pour la définition des utilisateurs
+
+[tabs] pour les modules à afficher
+
 
 Les fichiers
 ------------
