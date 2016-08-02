@@ -201,10 +201,12 @@ def do(item, action):
    print choice.__class__.actions
   
    if (action in choice.__class__.actions) :
-      print "Connue" 
+      print "+++++++++++ Connue" 
       # Searching and calling the corresponding action
       getattr(choice, action)()
-   
+   else :
+      print "+++++++++++ INConnue" 
+
    return redirect(url_for("menu", item=item, notification="C'est fait"))
 
 #-------------------------------------------------------------

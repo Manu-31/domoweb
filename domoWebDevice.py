@@ -23,8 +23,8 @@ import domoTask
 #--------------------------------------------------------
 class domoWebDevice() :
    def __init__(self) :
-      self.historic = domoWebCircularDataCache(24)
-      self.runPeriodicGetData(datetime.timedelta(seconds=10))
+      self.historic = domoWebCircularDataCache(24*12)
+      self.runPeriodicGetData(datetime.timedelta(seconds=300))
 
    def logData(self) :
       value = self.getValue()
@@ -57,10 +57,14 @@ class domoWebSwitchDevice(domoWebDevice) :
 # A remote switch device
 #--------------------------------------------------------
 class remoteSwitchDevice(domoWebSwitchDevice) :
-   def __init__(self, urlOn, urlOff) :
+   def __init__(self, urlOn, urlOff, urlStatus=None) :
       domoWebSwitchDevice.__init__(self)
       self.urlOn = urlOn
       self.urlOff = urlOff
+      if (urlStatus is None) :
+         self.statusSrc = None
+      else :
+         self.statusSrc = domoWebReadOnlyRemoteDevice(urlStatus)
 
    def on(self) :
       socket = urllib.urlopen(self.urlOn)
@@ -70,6 +74,16 @@ class remoteSwitchDevice(domoWebSwitchDevice) :
       socket = urllib.urlopen(self.urlOff)
       domoWebSwitchDevice.off(self)
   
+   def getValue(self) :
+      print("AAA")
+      if (self.statusSrc is None) :
+         print("BBB")
+         return int(self.domoWebSwitchDevice())
+      else :
+         print("CCC :")
+         print self.statusSrc.getValue()
+         return int(self.statusSrc.getValue())
+   
 #========================================================
 # A thermometer can give ... temperatures !
 #========================================================
@@ -77,11 +91,8 @@ class domoWebThermometer(domoWebDevice) :
    def __init__(self) :
       domoWebDevice.__init__(self)
 
-   def getTemperature(self) :
-      pass
-
    def getValue(self) :
-      self.getTemperature()
+      return self.getTemperature()
       
 #--------------------------------------------------------
 # A remote thermometer
@@ -117,7 +128,11 @@ def createThermometer(desc) :
 def createSwitch(desc) :
    lines = string.split(desc, ",")
    if (lines[0] == "remote") :
-      return remoteSwitchDevice(lines[1], lines[2])
+      print "*** A remote switch "
+      print "    -> " + lines[1]
+      print "    -> " + lines[2]
+      print "    -> " + lines[3]
+      return remoteSwitchDevice(lines[1], lines[2],lines[3])
 
    
 
@@ -144,6 +159,7 @@ class domoWebReadOnlyRemoteDevice(domoWebReadOnlyDevice) :
 
    # Re definition of domoWebReadOnlyDevice attibutes
    def getValue(self) :
+      print "Reading " + self.url
       socket = urllib.urlopen(self.url)
       return socket.read()
   

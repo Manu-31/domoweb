@@ -22,7 +22,7 @@ from oneWireDevice import *
 class piscine(domoWebModule.domoWebModule) :
 
    # Available actions
-   actions = ["lightOn", 'lightOff', 'pumpOn', 'pumpOff']
+   actions = ["lightOn", 'lightOff', 'pumpOn', 'pumpOff', "robotOn", 'robotOff', 'pHControlOn', 'pHControlOff']
 
    def __init__(self, name, html="piscine.html") :
       domoWebModule.domoWebModule.__init__(self, name, html)
@@ -36,7 +36,7 @@ class piscine(domoWebModule.domoWebModule) :
       # We get specific options and remove them from the list
       ol = list(optionList)
       for option, value in ol :
-         # 1wire thermometer address
+         # Water thrmometer
          if ('watertemp' == option) :
             i = optionList.index((option, value))
             del optionList[i]
@@ -44,17 +44,7 @@ class piscine(domoWebModule.domoWebModule) :
             # create a thermometer
             self.waterThermometer = createThermometer(value)
 
-            self.logger.info("Piscine waterTemp : " + value + " created")
-
-         # Gpio light switch
-         if ('lightswitch' == option) :
-            i = optionList.index((option, value))
-            del optionList[i]
-
-            # create a gpioDevice
-            self.lightSwitch = gpioDevice.gpioDevice(value, gpioDevice.IN, gpioDevice.OFF)
-
-            self.logger.info("Piscine lightSwitch : " + value + " created")
+            self.logger.info(self.name+".waterTemp : " + value + " created")
 
          # Outside thermometer
          if ('outsidetemp' == option) :
@@ -64,47 +54,113 @@ class piscine(domoWebModule.domoWebModule) :
 
             # create a thermometer
             self.outsideThermometer = createThermometer(value)
-            self.logger.info("Piscine outsideTemp : " + value + " created")
+            self.logger.info(self.name+".outsideTemp : " + value + " created")
+
+         # Light switch
+         if ('lightswitch' == option) :
+            i = optionList.index((option, value))
+            del optionList[i]
+
+            # create a switch
+            self.lightSwitch = createSwitch(value)
+
+            self.logger.info(self.name+".lightSwitch : " + value + " created")
 
          # Pump switch
          if ('pumpswitch' == option) :
             i = optionList.index((option, value))
             del optionList[i]
 
-            # create a gpioDevice
+            # create a switch
             self.pumpSwitch = createSwitch(value)
 
-            self.logger.info("Piscine lightSwitch : " + value + " created")
+            self.logger.info(self.name+".pumpSwitch : " + value + " created")
+            
+         # Ph control switch
+         if ('phcontrolswitch' == option) :
+            i = optionList.index((option, value))
+            del optionList[i]
+
+            # create a switch
+            self.pHControlSwitch = createSwitch(value)
+
+            self.logger.info(self.name+".pHControlSwitch : " + value + " created")
+
+         # Robot switch
+         if ('robotswitch' == option) :
+            i = optionList.index((option, value))
+            del optionList[i]
+
+            # create a switch
+            self.robotSwitch = createSwitch(value)
+
+            self.logger.info(self.name+".robotSwitch : " + value + " created")
             
       # Then we use the parent method
       domoWebModule.domoWebModule.setOptions(self, optionList)
 
    # Build a dictionary with local parameters
-   def templateData(self):
-      templateData = {}
+   def templateData(self) :
+      templateData = {'domoWebModuleName' : self.name}
+
+      # Temperatures
       templateData['waterTemp'] = round(float(self.waterThermometer.getTemperature()), 1)
       if (hasattr(self, 'outsideThermometer')) :
-         templateData['outsideTemp'] = self.outsideThermometer.getTemperature()
-      templateData['etatEclairage'] = self.etatEclairage
-      templateData['etatPompe'] = self.etatPompe
-      self.tempLogger.logData({'waterTemp': templateData['waterTemp']})
+         templateData['outsideTemp'] = round(float(self.outsideThermometer.getTemperature()), 1)
+                                             
+      # Termperature history
+      templateData['tempHist'] = []
+      
+      # Building waterTemp history
+      templateData['tempHist'].append(("Eau", self.waterThermometer.getHistory()))
+
+      # Building airTemp history
+      templateData['tempHist'].append(("Air", self.outsideThermometer.getHistory()))
+
+      # Pool light
+      templateData['lightStatus'] = self.lightSwitch.getValue()
+
+      # Pump
+      templateData['pumpStatus'] = self.pumpSwitch.getValue()
+
+      # pH control
+      templateData['pHControlStatus'] = self.pHControlSwitch.getValue()
+
+      # Robot
+      templateData['robotStatus'] = self.robotSwitch.getValue()
+
+
       return templateData
 
    def lightOn(self):
-      self.etatEclairage = 1
-      print "On allume"
+      self.logger.info(self.name + " : light on")
+      self.lightSwitch.on()                                          
    
    def lightOff(self):
-      self.etatEclairage = 0
-      print "On etteint"   
+      self.logger.info(self.name + " : light off")
+      self.lightSwitch.off()
 
    def pumpOn(self):
-      self.etatPompe = 1
       self.logger.info(self.name + " pump on")
       self.pumpSwitch.on()
    
    def pumpOff(self):
-      self.etatPompe = 0
       self.logger.info(self.name + " pump off")
       self.pumpSwitch.off()
+
+   def pHControlOn(self):
+      self.logger.info(self.name + " : pH control on")
+      self.pHControlSwitch.on()                                          
+   
+   def pHControlOff(self):
+      self.logger.info(self.name + " : pH control off")
+      self.pHControlSwitch.off()
+
+   def robotOn(self):
+      self.logger.info(self.name + " robot on")
+      self.robotSwitch.on()
+   
+   def robotOff(self):
+      self.logger.info(self.name + " robot off")
+      self.robotSwitch.off()
 

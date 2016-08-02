@@ -26,17 +26,13 @@ class oneWireThermometer(oneWireDevice, domoWebThermometer) :
 
       self.deviceFile = oneWireDevice.oneWireRootDir + '/' + address + '/w1_slave'
       
-      #self.historique = domoWebCircularDataCache(24*12)
-      #self.runPeriodicGetTemperature(datetime.timedelta(seconds=10))
-
    def read_temp_raw(self):
       f = open(self.deviceFile, 'r')
       lines = f.readlines()
       f.close()
       return lines
  
-   # Re definition of domoWebReadOnlyDevice attibutes
-   def getValue(self) :
+   def readData(self) :
       lines = self.read_temp_raw()
       while lines[0].strip()[-3:] != 'YES':
          time.sleep(0.2)
@@ -47,10 +43,9 @@ class oneWireThermometer(oneWireDevice, domoWebThermometer) :
          temp_c = float(temp_string) / 1000.0
          return temp_c
 
+   # Re definition of domoWebReadOnlyDevice attibutes
    def getTemperature(self) :
-      #print "**** getTemperature " + self.deviceFile
-      value = self.getValue()
-
+      value = self.readData()
       return value
 
 #========================================================

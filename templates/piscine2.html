@@ -1,0 +1,47 @@
+{% extends "domoweb.html" %}
+{% block maincontent %}
+<div class="w3-row">
+  <div class="w3-col m4 l3">
+    <div class="w3-container" style="padding-bottom:1rem;padding-top:2rem;">
+      <span class="w3-tag w3-green w3-xxlarge w3-round-large  w3-center">
+        <div class="w3-jumbo"> {{ outsideTemp }}°</div>
+        <div class="w3-medium">Air</div>
+      </span>
+    </div>
+
+    <div class="w3-container" style="padding-bottom:2rem">
+      <span class="w3-tag w3-blue w3-xxlarge w3-round-large  w3-center">
+        <div class="w3-jumbo"> {{ waterTemp }}°</div>
+        <div class="w3-medium">Eau</div>
+      </span>
+    </div>
+
+    <div class="w3-container" style="padding-bottom:2rem;">
+      {% if lightStatus ==  1 %}
+         <a href="{{ url_for('do', item=domoWebModuleName, action ='lightOff') }}"><i class="fa fa-lightbulb-o w3-xxxlarge w3-text-orange" style="padding:1rem;"></i></a>
+      {% else %}
+         <a href="{{ url_for('do', item=domoWebModuleName, action ='lightOn') }}"><i class="fa fa-lightbulb-o w3-xxxlarge w3-text-black" style="padding:1rem;"></i></a>
+      {% endif %}
+      {% if pumpStatus ==  1 %}
+         <a href="{{ url_for('do', item=domoWebModuleName, action ='pumpOff') }}"><i class="fa fa-refresh w3-xxxlarge w3-text-orange" style="padding:1rem;"></i></a>
+      {% else %}
+         <a href="{{ url_for('do', item=domoWebModuleName, action ='pumpOn') }}"><i class="fa fa-refresh w3-xxxlarge w3-text-black" style="padding:1rem;"></i></a>
+      {% endif %}
+      {% if robotStatus ==  1 %}
+         <a href="{{ url_for('do', item=domoWebModuleName, action ='robotOff') }}"><i class="fa fa-recycle w3-xxxlarge w3-text-orange" style="padding:1rem;"></i></a>
+      {% else %}
+         <a href="{{ url_for('do', item=domoWebModuleName, action ='robotOn') }}"><i class="fa fa-recycle w3-xxxlarge w3-text-black" style="padding:1rem;"></i></a>
+      {% endif %}
+      {% if phControlStatus ==  1 %}
+         <a href="{{ url_for('do', item=domoWebModuleName, action ='phControlOff') }}"><i class="fa fa-eyedropper w3-xxxlarge w3-text-orange" style="padding:1rem;"></i></a>
+      {% else %}
+         <a href="{{ url_for('do', item=domoWebModuleName, action ='phControlOn') }}"><i class="fa fa-eyedropper w3-xxxlarge w3-text-black" style="padding:1rem;"></i></a>
+      {% endif %}
+
+    </div>    
+  </div>
+  <div class="w3-col m8 l9">
+     {% include 'temphist.html' %}
+  </div>
+</div>
+{% endblock %}
