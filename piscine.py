@@ -22,7 +22,8 @@ from oneWireDevice import *
 class piscine(domoWebModule.domoWebModule) :
 
    # Available actions
-   actions = ["lightOn", 'lightOff', 'pumpOn', 'pumpOff', "robotOn", 'robotOff', 'pHControlOn', 'pHControlOff']
+   actions = ["lightOn", 'lightOff', 'pumpOn', 'pumpOff', "robotOn", 'robotOff']
+#   actions = ["lightOn", 'lightOff', 'pumpOn', 'pumpOff', "robotOn", 'robotOff', 'pHControlOn', 'pHControlOff']
 
    def __init__(self, name, html="piscine.html") :
       domoWebModule.domoWebModule.__init__(self, name, html)
@@ -148,14 +149,6 @@ class piscine(domoWebModule.domoWebModule) :
       self.logger.info(self.name + " pump off")
       self.pumpSwitch.off()
 
-   def pHControlOn(self):
-      self.logger.info(self.name + " : pH control on")
-      self.pHControlSwitch.on()                                          
-   
-   def pHControlOff(self):
-      self.logger.info(self.name + " : pH control off")
-      self.pHControlSwitch.off()
-
    def robotOn(self):
       self.logger.info(self.name + " robot on")
       self.robotSwitch.on()
@@ -163,4 +156,14 @@ class piscine(domoWebModule.domoWebModule) :
    def robotOff(self):
       self.logger.info(self.name + " robot off")
       self.robotSwitch.off()
+
+   @domoWebModule.domoWebModuleAction
+   def pHControlOn(self):
+      self.logger.info(self.name + " : pH control on")
+      self.pHControlSwitch.on()                                          
+      
+   @domoWebModule.domoWebModuleAction
+   def pHControlOff(self):
+      self.logger.info(self.name + " : pH control off")
+      self.pHControlSwitch.off()
 

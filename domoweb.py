@@ -26,6 +26,7 @@ import oneWireDevice
 import webui
 import domoWebModule
 import gpioDevice
+import domoTask
 import domoWebDataCache
   
 #=============================================================
@@ -47,6 +48,7 @@ config.read(['/etc/domoweb.cfg', os.path.expanduser('~/.domoweb.cfg')])
 #  Le debogage
 logFileName = config.get('debug', 'logFileName')
 logConsole =  config.getboolean('debug', 'logConsole')
+debugFlags = config.get('debug', 'debugFlags')
 
 #-------------------------------------------------------------
 # Logging system configuration
@@ -64,8 +66,13 @@ logger.info("DomoWeb version " + domowebVersion + " running")
 #-------------------------------------------------------------
 # cache initialisation
 #-------------------------------------------------------------
-domoWebDataCache.domoWebDataCacheInit(logger)
+domoWebDataCache.domoWebDataCacheInit(config, logger, debugFlags)
 
+#-------------------------------------------------------------
+# Task mgt init
+#-------------------------------------------------------------
+domoTask.domoTaskInit(logger, debugFlags)
+   
 #-------------------------------------------------------------
 # 1wire initialization
 #-------------------------------------------------------------

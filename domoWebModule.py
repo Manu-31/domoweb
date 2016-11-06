@@ -83,8 +83,10 @@ class domoWebModule :
    def setHtml(self, html) :
       self.html = html
 
+   # Build a dictionary with local parameters
    def templateData(self):
-      return {}
+      templateData = {'domoWebModuleName' : self.name}
+      return templateData
 
    def name(self):
       return self.name
@@ -119,6 +121,40 @@ class domoWebModule :
    # Is user allowed to read data from this module ?
    def userCanWrite(self, user) :
       return ((self.writeUsers is None) or ((user in self.writeUsers) and (user.is_authenticated)))
+
+#-------------------------------------------------------------
+#
+#-------------------------------------------------------------
+def domoWebModuleAction(func):
+   print("domoWebModuleAction 1")
+   print func
+   
+   def action(self) :
+      print("domoWebModuleAction 2")
+      return func(self)
+
+   print("domoWebModuleAction 3")
+   action.isAModuleAction = True
+   print vars(action)
+
+   return action
+
+#-------------------------------------------------------------
+#
+#-------------------------------------------------------------
+def domoWebModuleAttribute(func):
+   print("domoWebModuleAttribute 1")
+   print func
+   
+   def action(self) :
+      print("domoWebModuleAttribute 2")
+      return func(self)
+
+   print("domoWebModuleAttribute 3")
+   action.isAModuleAttribute = True
+   print vars(action)
+
+   return action
 
 #-------------------------------------------------------------
 # Pour pouvoir logguer sur une page web

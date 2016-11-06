@@ -102,6 +102,14 @@ classes de modules élémentaires
    gpioDevice.py
    oneWireDevice.py
   
+EN COURS
+   . Automatiser les ajouts d'attributs : voir aquarium avec un premier
+   essai. Il va falloir le reporter dans domoWebDevice. Du coup, on
+   devrait pouvoir supprimer aquarium, piscine, ... 
+
+   [templates]
+   . utiliser w3.CSS ? Ou bootstrap, ...
+
 URGENT
  
    . Faire une piscine utilisable et une en lecture seule, pour voir.
@@ -143,10 +151,6 @@ les paramètres modifiables. Une première tentative est en cours
    [debug]
    . selection du niveau de log
 
-
-EN COURS
-   [templates]
-   . utiliser w3.CSS ? Ou bootstrap, ...
 
 FAIT
    [debug]

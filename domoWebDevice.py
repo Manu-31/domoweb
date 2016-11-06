@@ -45,12 +45,15 @@ class domoWebSwitchDevice(domoWebDevice) :
       self.status = 0
       
    def on(self) :
+      print " == domoWebSwitchDevice ON"
       self.status = 1
       
    def off(self) :
+      print " == domoWebSwitchDevice OFF"
       self.status = 0
 
    def getValue(self) :
+      print " == domoWebSwitchDevice GET"
       return self.status
    
 #--------------------------------------------------------
@@ -75,12 +78,12 @@ class remoteSwitchDevice(domoWebSwitchDevice) :
       domoWebSwitchDevice.off(self)
   
    def getValue(self) :
-      print("AAA")
+      print("remoteSwitchDevice.getValue")
       if (self.statusSrc is None) :
-         print("BBB")
+         print("   cached value")
          return int(self.domoWebSwitchDevice())
       else :
-         print("CCC :")
+         print("   get remote value")
          print self.statusSrc.getValue()
          return int(self.statusSrc.getValue())
    
@@ -121,19 +124,25 @@ def createThermometer(desc) :
       return oneWireDevice.oneWireThermometer(lines[1])
    
 #--------------------------------------------------------
-#   Create a switch from a description.
+#   Create a switch from a description :
 # . oneWire,address
 # . remote,urlOn,urlOff
+# . fake                 (does nothing, debuging purpose)
 #--------------------------------------------------------
 def createSwitch(desc) :
    lines = string.split(desc, ",")
    if (lines[0] == "remote") :
-      print "*** A remote switch "
-      print "    -> " + lines[1]
-      print "    -> " + lines[2]
-      print "    -> " + lines[3]
+#      print "*** A remote switch "
+#      print "    -> " + lines[1]
+#      print "    -> " + lines[2]
+#      print "    -> " + lines[3]
       return remoteSwitchDevice(lines[1], lines[2],lines[3])
-
+   elif (lines[0] == "fake") :
+      return domoWebSwitchDevice()
+   else :
+      print "*** A FAIRE ***"
+      gpioDevice.gpioDevice(int(value), gpioDevice.IN, gpioDevice.OFF)
+      return None
    
 
 
@@ -159,7 +168,11 @@ class domoWebReadOnlyRemoteDevice(domoWebReadOnlyDevice) :
 
    # Re definition of domoWebReadOnlyDevice attibutes
    def getValue(self) :
-      print "Reading " + self.url
-      socket = urllib.urlopen(self.url)
-      return socket.read()
+      logger = logging.getLogger('domoweb').debug("Reading " + self.url)
+      try :
+         socket = urllib.urlopen(self.url)
+         return socket.read()
+      except IOError :
+         
+         return "0"
   

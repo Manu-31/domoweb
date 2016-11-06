@@ -6,6 +6,9 @@
 #========================================================
 import logging
 
+logger = None
+debugFlags = {}
+
 #--------------------------------------------------------
 # The high level cache class
 #--------------------------------------------------------
@@ -31,11 +34,13 @@ class domoWebCircularDataCache(domoWebDataCache) :
       
    def cacheData(self, data) :
       self.nbEntry = self.nbEntry +1
-      print "[cache] " + str(self.nbEntry) + " / " + str(self.size)
+      if ('cacheVerbose' in debugFlags) :
+         logger.info("[cache] " + str(self.nbEntry) + " / " + str(self.size))
       self.data = [data] + self.data[0:min(self.nbEntry-2, self.size-1)]
 
    def getData(self, n=0) :
-      print "[cache.getData] " + str(self.nbEntry) + " / " + str(self.size)
+      if ('cacheVerbose' in debugFlags) :
+         logger.info("[cache.getData] " + str(self.nbEntry) + " / " + str(self.size))
       if ( n == 0 ) :
          n = self.nbEntry
       return self.data[0:min(self.nbEntry, n)]
@@ -43,8 +48,10 @@ class domoWebCircularDataCache(domoWebDataCache) :
 #--------------------------------------------------------
 # Module init
 #--------------------------------------------------------
-def domoWebDataCacheInit(l) :
-   global logger
+def domoWebDataCacheInit(c, l, d) :
    logger = l
-   logger.info("Initializing domoWebDataCache ...")
+   debugFlags = d
+   
+   if ('cache' in debugFlags) :
+      logger.info("Initializing domoWebDataCache subsystem")
    

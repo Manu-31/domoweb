@@ -46,38 +46,70 @@ class aquarium(domoWebModule.domoWebModule) :
 
             self.logger.info("Aquarium waterTemp : " + value + " created")
 
-         # Gpio light switch
+         # Light switch
          if ('lightswitch' == option) :
             i = optionList.index((option, value))
             del optionList[i]
 
-            # create a gpioDevice
+            # create a switch
             print "Aquarium lightSwitch : " + value
-            self.lightSwitch = gpioDevice.gpioDevice(int(value), gpioDevice.IN, gpioDevice.OFF)
+            self.lightSwitch = createSwitch(value)
 
-            self.logger.info("Aquarium lightSwitch : " + value + " created")
+            self.logger.info(self.name+".lightSwitch : " + value + " created")
+
+
+         # Pump switch
+         if ('pumpswitch' == option) :
+            i = optionList.index((option, value))
+            del optionList[i]
+
+            # create a switch
+            self.pumpSwitch = createSwitch(value)
+
+            self.logger.info(self.name+".pumpSwitch : " + value + " created")
+
 
          # Room thermometer
          if ('roomtemp' == option) :
-            roomTemp = (value)
+            roomTemp = (value) # WARNING ???
             i = optionList.index((option, value))
             del optionList[i]
 
             # create a thermometer
             self.roomThermometer = createThermometer(value)
             self.logger.info("Aquarium waterTemp : " + value + " created")
-       
+
+      ##############################################
+      # A test
+      t =   createThermometer("oneWire,28-0314640d3cff")
+      setattr(t, "isAModuleAttribute", 1)
+      setattr(self, "TestALaCon", t)
+      print vars(t)
+      ##############################################
+      
       # Then we use the parent method
       domoWebModule.domoWebModule.setOptions(self, optionList)
 
    # Build a dictionary with local parameters
    def templateData(self):
-      templateData = {}
+      # Generic data
+      templateData =domoWebModule.domoWebModule.templateData(self)
+
+      ##############################################
+      # Searching attributes
+      for a in vars(self) :
+         b = getattr(self, a)
+         if (hasattr(b, "isAModuleAttribute")) :
+            print "["+a+"] est un attribut de "+self.name
+            templateData[a] = b.getValue()
+            print "Valeur de a : "
+            print b.getValue()
+            
+      ##############################################
+
       templateData['waterTemp'] = self.waterThermometer.getTemperature()
       if (hasattr(self, 'roomThermometer')) :
          templateData['roomTemp'] = self.roomThermometer.getTemperature()
-      templateData['etatEclairage'] = self.etatEclairage
-      templateData['etatPompe'] = self.etatPompe
 
       # Building history
       templateData['tempHist'] = []
@@ -88,21 +120,38 @@ class aquarium(domoWebModule.domoWebModule) :
       # Building airTemp history
       templateData['tempHist'].append(("Air", self.roomThermometer.getHistory()))
 
-#      self.tempLogger.logData({'waterTemp': templateData['waterTemp']}) # WARNING : it was a test
+      # Pool light
+      templateData['lightStatus'] = self.lightSwitch.getValue()
+
+      # Pump
+      templateData['pumpStatus'] = self.pumpSwitch.getValue()
+
       return templateData
 
+   @domoWebModule.domoWebModuleAction
    def lightOn(self):
-      self.etatEclairage = 1
-      print "On allume"
+      self.logger.info(self.name + " : light on")
+      self.lightSwitch.on()                                          
    
+   @domoWebModule.domoWebModuleAction
    def lightOff(self):
-      self.etatEclairage = 0
-      print "On etteint"   
+      self.logger.info(self.name + " : light off")
+      self.lightSwitch.off()
 
-   def pumpOn( self):
-      self.etatPompe = 1
-      print "On pompe"
+   def pumpOn(self):
+      self.logger.info(self.name + " pump on")
+      self.pumpSwitch.on()
    
    def pumpOff(self):
-      self.etatPompe = 0
-      print "On coupe"   
+      self.logger.info(self.name + " pump off")
+      self.pumpSwitch.off()
+
+   @property
+   @domoWebModule.domoWebModuleAttribute
+   def test(self) :
+      return self.__test
+
+   @test.setter
+   def test(self, val):
+      self.__test = val
+      

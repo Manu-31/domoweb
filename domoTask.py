@@ -9,6 +9,8 @@ import threading, Queue
 import time, datetime
 import logging
 
+debugFlags = {}
+
 # We use a priority queue where priority is the date
 taskQueue = Queue.PriorityQueue()
 
@@ -26,13 +28,18 @@ def affiche(m) :
 #  So a time dt f(d) is ran
 #========================================================
 def queueTask(dt, f, d, p=0) :
-   global logger
-   print "New task dt="+str(dt)+" period "+str(p) + " data :"
-   print d
+   if ('taskVerbose' in debugFlags) :
+       logger.info("New task dt="+str(dt)+" period "+str(p) + " data :" + str(d))
+       
+#   print "New task dt="+str(dt)+" period "+str(p) + " data :"
+#   print d
    if (dt == 0) :
       dt = datetime.datetime.now() 
-#   logger.info("Queueing new event for "+dt.isoformat())
+   if ('taskVerbose' in debugFlags) :
+      logger.info("Queueing new event for "+dt.isoformat())
+
    taskQueue.put((dt, {'func' : f, 'data' : d, 'period' : p}))
+
    # Let's wake up the main thread (note : this will raise
    # some spurious wakeups, but never mind !)
    newTask.set()
@@ -41,8 +48,8 @@ def queueTask(dt, f, d, p=0) :
 # Main loop running tasks
 #========================================================
 def runTaskQueue() :
-   global logger
-   logger.info("Starting to run task queue")
+   if ('taskVerbose' in debugFlags) :
+      logger.info("Starting to run task queue")
    while (1 == 1) :
       newTask.clear() # Warning, should be protected
       tsk = taskQueue.get(True)
@@ -68,16 +75,22 @@ def runTaskQueue() :
             queueTask(datetime.datetime.now()+period, f, d, period)
 
          # Actually running the task
-         logger.info("Running task")
+         if ('taskVerbose' in debugFlags) :
+            logger.info("Running task")
          f(d)
           
 #========================================================
 # Subsystem initalization
 #========================================================
-def domoTaskInit(l) :
+def domoTaskInit(l, dbgFlg) :
+   global debugFlags
    global logger
+   
    logger = l
-   logger.info("Initializing domoTask subsystem")
+   debugFlags = dbgFlg
+   
+   if ('task' in debugFlags) :
+       logger.info("Initializing domoTask subsystem")
 
    # These 3 tasks should be removed
    #queueTask(datetime.datetime.now() + datetime.timedelta(seconds=30), affiche, "Plus tard")

@@ -17,9 +17,16 @@
     </div>
 
     <div class="w3-container" style="padding-bottom:2rem;">
-      <i class="fa fa-lightbulb-o w3-xxxlarge" style="padding:1rem;"></i>
-      <i class="fa fa-refresh w3-xxxlarge" style="padding:1rem;"></i>
-      <i class="fa fa-cloud w3-xxxlarge" style="padding:1rem;"></i>
+      {% if lightStatus ==  1 %}
+         <a href="{{ url_for('do', module=domoWebModuleName, action ='lightOff') }}"><i class="fa fa-lightbulb-o w3-xxxlarge w3-text-orange" style="padding:1rem;"></i></a>
+      {% else %}
+         <a href="{{ url_for('do', module=domoWebModuleName, action ='lightOn') }}"><i class="fa fa-lightbulb-o w3-xxxlarge w3-text-black" style="padding:1rem;"></i></a>
+      {% endif %}
+      {% if pumpStatus ==  1 %}
+         <a href="{{ url_for('do', module=domoWebModuleName, action ='pumpOff') }}"><i class="fa fa-refresh w3-xxxlarge w3-text-orange" style="padding:1rem;"></i></a>
+      {% else %}
+         <a href="{{ url_for('do', module=domoWebModuleName, action ='pumpOn') }}"><i class="fa fa-refresh w3-xxxlarge w3-text-black" style="padding:1rem;"></i></a>
+      {% endif %}
 
     </div>    
   </div>

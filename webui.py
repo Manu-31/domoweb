@@ -27,8 +27,6 @@ import types
 import logging
 import json
 
-import domoTask
-
 # Import available modules
 from domoWebModule import *
 from aquarium import *
@@ -46,7 +44,7 @@ app = Flask(__name__)
 @app.route("/")
 #@login_required
 def accueil():
-   return redirect(url_for('menu', item='aide'))
+   return redirect(url_for('menu', module='aide'))
 
 #=============================================================
 # Gestion de l'authentification
@@ -62,13 +60,13 @@ def load_user(user_id):
 #=============================================================
 # Definition of the routes.
 #=============================================================
-#--------------------------------------------------------
+#-------------------------------------------------------------
 # This one gives value for remote display
-#--------------------------------------------------------
+#-------------------------------------------------------------
 @app.route("/json/<module>/<value>")
 #@login_required
 def readValue(module, value):
-   # Searching the item
+   # Searching the module
    r = [x for x in domoWebModule.domoWebModule.domoWebModules if x.name == module]
    # WARNING : r could be empty 
    choice = r[0]
@@ -81,16 +79,16 @@ def readValue(module, value):
 
    return Response(json.dumps(values[value]),mimetype='application/json')
 
-#--------------------------------------------------------
+#-------------------------------------------------------------
 # Here is the route to access the defined modules
-#--------------------------------------------------------
-@app.route("/menu/<item>", methods=['GET', 'POST'])
+#-------------------------------------------------------------
+@app.route("/menu/<module>", methods=['GET', 'POST'])
 #@login_required
-def menu(item):
+def menu(module):
    global logger
    
-   # Searching the item
-   r = [x for x in domoWebModule.domoWebModule.domoWebModules if x.name == item]
+   # Searching the module
+   r = [x for x in domoWebModule.domoWebModule.domoWebModules if x.name == module]
    # WARNING : r could be empty 
    choice = r[0]
 
@@ -106,13 +104,13 @@ def menu(item):
                tabList.append(mod)
          templateData = {
             'tabList' :  tabList,
-            'currentMenu' : item
+            'currentMenu' : module
          }
 
          # Updating displayed data
          templateData.update(choice.templateData())
  
-         # Rendering the pagea
+         # Rendering the page
          logger.info("Rendering "+ choice.html +" for module "+choice.name)
          return render_template(choice.html, **templateData)
       else :
@@ -127,7 +125,7 @@ def menu(item):
                tabList.append(mod)
          templateData = {
             'tabList' :  tabList,
-            'currentMenu' : item
+            'currentMenu' : module
          }
          templateData.update(choice.templateData())
          notification = request.args.get('notification', '')
@@ -148,7 +146,7 @@ def pouet():
       'currentMenu' : 'login'
    }
 
-   # Searching the item
+   # Searching the module
    r = [x for x in domoWebModule.domoWebModule.domoWebModules if x.name == 'login']
    # WARNING : r could be empty 
    choice = r[0]
@@ -170,7 +168,7 @@ def pouet():
             login_user(user)
             print "Et on ouvre la page"
             print current_user
-            return redirect(url_for('menu', item='aide'))
+            return redirect(url_for('menu', module='aide'))
          else :
             error = 'Invalid Credentials. Please try again.'
            
@@ -179,18 +177,21 @@ def pouet():
 @app.route("/logout")
 def logout():
     logout_user()
-    return redirect(url_for('menu', item='aide'))
+    return redirect(url_for('menu', module='aide'))
 
-@app.route("/do/<item>/<action>")
+#-------------------------------------------------------------
+# Run an action on a module
+#-------------------------------------------------------------
+@app.route("/do/<module>/<action>")
 #@login_required
-def do(item, action):
-   print "Item"
-   print item
+def do(module, action):
+   print "Module"
+   print module
    print "Action"
    print action
 
-   # Searching the item
-   r = [x for x in domoWebModule.domoWebModule.domoWebModules if x.name == item]
+   # Searching the module
+   r = [x for x in domoWebModule.domoWebModule.domoWebModules if x.name == module]
    # WARNING : r could be empty 
    choice = r[0]
 
@@ -199,15 +200,33 @@ def do(item, action):
    
    print "Les actions sont"
    print choice.__class__.actions
-  
-   if (action in choice.__class__.actions) :
-      print "+++++++++++ Connue" 
-      # Searching and calling the corresponding action
-      getattr(choice, action)()
-   else :
-      print "+++++++++++ INConnue" 
 
-   return redirect(url_for("menu", item=item, notification="C'est fait"))
+   if (hasattr(choice, action)) :
+      print "** " + action + " est connue"
+      actionFunc = getattr(choice, action)
+      print actionFunc
+      getattr(choice, action)()
+      
+      if (hasattr(actionFunc, "isAModuleAction")) :
+         print "** C'est une action"
+      else :
+         print "** C'est PAS une action mon cochon"
+         print vars(actionFunc)
+         
+   if (action in choice.__class__.actions) :
+      print "+++++++++++ Connue"
+      # Is the user allowed to run an action on this module ?
+      if (choice.userCanWrite(current_user)) :
+         # Searching and calling the corresponding action
+         getattr(choice, action)()
+
+         return redirect(url_for("menu", module=module, notification="C'est fait"))
+      else :
+         return redirect(url_for("menu", module=module, notification="Forbidden"))
+   else :
+      print("Action "+ module + "." + action +  " inconnue")
+      logger.debug("Action "+ module + "." + action +  " inconnue")
+      return redirect(url_for("menu", module=module, notification="Erreur interne"))
 
 #-------------------------------------------------------------
 # List all available data
@@ -218,14 +237,14 @@ def listParameters():
    moduleList = []
    
    for x in domoWebModule.domoWebModule.domoWebModules :
-      newMod = {'name' : x.name, 'actions' : [], 'item' : []}
+      newMod = {'name' : x.name, 'actions' : [], 'module' : []}
       td = x.templateData()
       for n in td :
          print "------------------"
          print n
          print td[n]
          print "------------------"
-         newMod['item'].append({'name' : n, 'v' : td[n]})
+         newMod['module'].append({'name' : n, 'v' : td[n]})
       for a in x.__class__.actions :
          newMod['actions'].append(a)
       moduleList.append(newMod)
@@ -269,8 +288,6 @@ def buildWebui(config):
       if (config.has_section(modName)) :
          domoModule.setOptions(config.items(modName))
 
-   domoTask.domoTaskInit(logger)
-   
 #-------------------------------------------------------------
 # Run the web server
 #-------------------------------------------------------------

@@ -18,24 +18,24 @@
 
     <div class="w3-container" style="padding-bottom:2rem;">
       {% if lightStatus ==  1 %}
-         <a href="{{ url_for('do', item=domoWebModuleName, action ='lightOff') }}"><i class="fa fa-lightbulb-o w3-xxxlarge w3-text-orange" style="padding:1rem;"></i></a>
+         <a href="{{ url_for('do', module=domoWebModuleName, action ='lightOff') }}"><i class="fa fa-lightbulb-o w3-xxxlarge w3-text-orange" style="padding:1rem;"></i></a>
       {% else %}
-         <a href="{{ url_for('do', item=domoWebModuleName, action ='lightOn') }}"><i class="fa fa-lightbulb-o w3-xxxlarge w3-text-black" style="padding:1rem;"></i></a>
+         <a href="{{ url_for('do', module=domoWebModuleName, action ='lightOn') }}"><i class="fa fa-lightbulb-o w3-xxxlarge w3-text-black" style="padding:1rem;"></i></a>
       {% endif %}
       {% if pumpStatus ==  1 %}
-         <a href="{{ url_for('do', item=domoWebModuleName, action ='pumpOff') }}"><i class="fa fa-refresh w3-xxxlarge w3-text-orange" style="padding:1rem;"></i></a>
+         <a href="{{ url_for('do', module=domoWebModuleName, action ='pumpOff') }}"><i class="fa fa-refresh w3-xxxlarge w3-text-orange" style="padding:1rem;"></i></a>
       {% else %}
-         <a href="{{ url_for('do', item=domoWebModuleName, action ='pumpOn') }}"><i class="fa fa-refresh w3-xxxlarge w3-text-black" style="padding:1rem;"></i></a>
+         <a href="{{ url_for('do', module=domoWebModuleName, action ='pumpOn') }}"><i class="fa fa-refresh w3-xxxlarge w3-text-black" style="padding:1rem;"></i></a>
       {% endif %}
       {% if robotStatus ==  1 %}
-         <a href="{{ url_for('do', item=domoWebModuleName, action ='robotOff') }}"><i class="fa fa-recycle w3-xxxlarge w3-text-orange" style="padding:1rem;"></i></a>
+         <a href="{{ url_for('do', module=domoWebModuleName, action ='robotOff') }}"><i class="fa fa-recycle w3-xxxlarge w3-text-orange" style="padding:1rem;"></i></a>
       {% else %}
-         <a href="{{ url_for('do', item=domoWebModuleName, action ='robotOn') }}"><i class="fa fa-recycle w3-xxxlarge w3-text-black" style="padding:1rem;"></i></a>
+         <a href="{{ url_for('do', module=domoWebModuleName, action ='robotOn') }}"><i class="fa fa-recycle w3-xxxlarge w3-text-black" style="padding:1rem;"></i></a>
       {% endif %}
-      {% if phControlStatus ==  1 %}
-         <a href="{{ url_for('do', item=domoWebModuleName, action ='phControlOff') }}"><i class="fa fa-eyedropper w3-xxxlarge w3-text-orange" style="padding:1rem;"></i></a>
+      {% if pHControlStatus ==  1 %}
+         <a href="{{ url_for('do', module=domoWebModuleName, action ='pHControlOff') }}"><i class="fa fa-eyedropper w3-xxxlarge w3-text-orange" style="padding:1rem;"></i></a>
       {% else %}
-         <a href="{{ url_for('do', item=domoWebModuleName, action ='phControlOn') }}"><i class="fa fa-eyedropper w3-xxxlarge w3-text-black" style="padding:1rem;"></i></a>
+         <a href="{{ url_for('do', module=domoWebModuleName, action ='pHControlOn') }}"><i class="fa fa-eyedropper w3-xxxlarge w3-text-black" style="padding:1rem;"></i></a>
       {% endif %}
 
     </div>    
