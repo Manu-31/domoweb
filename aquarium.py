@@ -82,9 +82,12 @@ class aquarium(domoWebModule.domoWebModule) :
       ##############################################
       # A test
       t =   createThermometer("oneWire,28-0314640d3cff")
-      setattr(t, "isAModuleAttribute", 1)
+      setattr(t, "isADomoWebModuleAttribute", 1)
       setattr(self, "TestALaCon", t)
+      print "---------------"
+      print " On fait un test  :"
       print vars(t)
+      print "---------------"
       ##############################################
       
       # Then we use the parent method
@@ -93,19 +96,7 @@ class aquarium(domoWebModule.domoWebModule) :
    # Build a dictionary with local parameters
    def templateData(self):
       # Generic data
-      templateData =domoWebModule.domoWebModule.templateData(self)
-
-      ##############################################
-      # Searching attributes
-      for a in vars(self) :
-         b = getattr(self, a)
-         if (hasattr(b, "isAModuleAttribute")) :
-            print "["+a+"] est un attribut de "+self.name
-            templateData[a] = b.getValue()
-            print "Valeur de a : "
-            print b.getValue()
-            
-      ##############################################
+      templateData = domoWebModule.domoWebModule.templateData(self)
 
       templateData['waterTemp'] = self.waterThermometer.getTemperature()
       if (hasattr(self, 'roomThermometer')) :

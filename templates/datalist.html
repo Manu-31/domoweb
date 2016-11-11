@@ -2,20 +2,37 @@
 {% block maincontent %}
 
 {% for obj in moduleList %}
-   Module = {{ obj.name }}<br><br>
+ <div class="w3-container w3-red">
+   <h1>Module = {{ obj.name }}</h1>
+</div>
 
-   {% for machin in obj.item %}
-      Item = {{ machin.name }}, valeur =  {{ machin.v }} <br>
+  <table class="w3-table-all">
+    <tr class="w3-blue">
+      <th>Attribut</th>
+      <th>Valeur</th>
+    </tr>
+
+   {% for machin in obj.itesl %}
+      <tr>
+         <td> {{ machin.name }} </td>
+         <td> {{ machin.v }} </td>
+      </tr>
    {% endfor %}
-   <br>
+   </table>
 
+  <table class="w3-table-all">
+    <tr class="w3-green">
+      <th>Action</th>
+      <th>Publique</th>
+    </tr>
    {% for ac in obj.actions %}
-      Action = {{ ac }} <br>
+      <tr>
+         <td> {{ ac }} </td>
+         <td> oui</td>
 
    {% endfor %}
-   <hr>
+   </table>
 {% endfor %}
-
    
 {% endblock %}
 

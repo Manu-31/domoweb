@@ -104,7 +104,7 @@ classes de modules élémentaires
   
 EN COURS
    . Automatiser les ajouts d'attributs : voir aquarium avec un premier
-   essai. Il va falloir le reporter dans domoWebDevice. Du coup, on
+   essai. Il va falloir le reporter dans domoWebModule. Du coup, on
    devrait pouvoir supprimer aquarium, piscine, ... 
 
    [templates]
@@ -113,7 +113,7 @@ EN COURS
 URGENT
  
    . Faire une piscine utilisable et une en lecture seule, pour voir.
-   On peut imaginer quel la version RO ne soit pas visble des utilisateurs
+   On peut imaginer que la version RO ne soit pas visible des utilisateurs
    qui ont l'autre. Ou que le html diffère pour la version publique, ...
 
    [user]

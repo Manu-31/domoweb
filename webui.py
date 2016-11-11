@@ -235,21 +235,32 @@ def do(module, action):
 #@login_required
 def listParameters():
    moduleList = []
-   
-   for x in domoWebModule.domoWebModule.domoWebModules :
-      newMod = {'name' : x.name, 'actions' : [], 'module' : []}
-      td = x.templateData()
-      for n in td :
-         print "------------------"
-         print n
-         print td[n]
-         print "------------------"
-         newMod['module'].append({'name' : n, 'v' : td[n]})
-      for a in x.__class__.actions :
-         newMod['actions'].append(a)
-      moduleList.append(newMod)
 
-   return render_template('datalist.html',  moduleList=moduleList)
+   print "*/*/*/*/*/ Préparons la liste"
+ 
+   for x in domoWebModule.domoWebModule.domoWebModules :
+      print "- " + x.name + " :"
+
+      for a in x.getAttributes() :
+            print "  . "+ a
+
+#      newMod = {'name' : x.name, 'actions' : [], 'module' : []}
+#      td = x.templateData()
+#      for n in td :
+#         print "------------------"
+#         print n
+#         print td[n]
+#         print "------------------"
+#         newMod['module'].append({'name' : n, 'v' : td[n]})
+#      for a in x.__class__.actions :
+#         newMod['actions'].append(a)
+#      moduleList.append(newMod)
+
+      moduleList.append(x)
+   print "*/*/*/*/*/ Liste des modules"
+   print moduleList
+
+   return render_template("datalist.html",  moduleList=moduleList)
 
 def strToClass(s):
    if s in globals() and isinstance(globals()[s], types.ClassType):

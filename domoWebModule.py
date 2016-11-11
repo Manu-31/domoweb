@@ -36,12 +36,17 @@ class domoWebModule :
    def __init__(self, name, html="error.html"):
       if (len([x for x in domoWebModule.domoWebModules if x.name == name]) != 0) :
          debug("module "+name+" defined twice !!!")
-      self.name = name
-      self.title = name
+      self.attributes = []
+      self.setName(name)
+      self.setTitle(name)
       self.setHtml(html)
       self.readUsers = []
       self.writeUsers = []
       domoWebModule.domoWebModules.append(self)
+
+   # Add an attribute
+   def addAttribute(self, dwAttr) :
+      self.attributes.append(dwAttr)
 
    def setOptions(self, optionList):
       ol = list(optionList)
@@ -77,16 +82,39 @@ class domoWebModule :
          #WARNING: SHOULD WE SET ANY ATTRIBUTE ? 
          #setattr(self, name, value)
 
+   def setName(self, name):
+      self.name =  name
+      self.addAttribute(self.name) 
+
    def setTitle(self, title):
       self.title = title
+      self.addAttribute(self.title) 
 
    def setHtml(self, html) :
       self.html = html
+      self.addAttribute(self.html)
 
    # Build a dictionary with local parameters
+   # This dictionary will be used to display the web page
+   # for the module. 
    def templateData(self):
-      templateData = {'domoWebModuleName' : self.name}
+      templateData = {} #{'domoWebModuleName' : self.name}
+
+      # Searching attributes
+      for a in vars(self) :
+         b = getattr(self, a)
+         if (hasattr(b, "isADomoWebModuleAttribute")) :
+            templateData[a] = b.getValue()
+
+            print "["+a+"] est un attribut de "+self.name
+            print "Valeur de a : "
+            print b.getValue()
+            
       return templateData
+
+   # Get attribute list
+   def getAttributes(self) :
+      return self.attributes
 
    def name(self):
       return self.name
