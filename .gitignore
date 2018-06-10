@@ -4,6 +4,7 @@ __pycache__/
 *~
 *.rrd
 FakeRPi
+log
 
 # C extensions
 *.so

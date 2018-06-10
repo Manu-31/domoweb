@@ -9,7 +9,7 @@ from domoWebUser import *
 # A login module 
 #=============================================================
 class signin(domoWebModule.domoWebModule) :
-   def __init__(self, name, html="login.html") :
+   def __init__(self, name, l=[], html="login.html") :
       domoWebModule.domoWebModule.__init__(self, name, html)
       self.setReadUsers(None)
 

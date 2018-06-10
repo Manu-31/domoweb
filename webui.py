@@ -23,15 +23,20 @@ from flask_login import \
    login_required, login_user, logout_user, current_user
 
 import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 import types
 import logging
 import json
 
 # Import available modules
 from domoWebModule import *
-from aquarium import *
-from piscine import *
+from domoWebModule import domoWebModule as generic
+#from aquarium import *
+#from piscine import *
 from domoWebSignIn import *
+from oneWireDevice import *
+from gpioDevice import *
 
 #=============================================================
 # Les variables globales
@@ -40,11 +45,13 @@ from domoWebSignIn import *
 # Le web
 app = Flask(__name__)
 
+# Le debug flag
+debugFlags = {}
 
 @app.route("/")
 #@login_required
 def accueil():
-   return redirect(url_for('menu', module='aide'))
+   return redirect(url_for('menu', modName='aide'))
 
 #=============================================================
 # Gestion de l'authentification
@@ -58,22 +65,37 @@ def load_user(user_id):
 
 
 #=============================================================
+# Some helper functions
+#=============================================================
+   
+#-------------------------------------------------------------
+# Creation of the menu list based on the selected module, connected
+# user, ...
+# Input
+#    module      : selected module
+# This function returns a templateData with data for the generic
+# header (with the menu)
+#    tabList     : list of available modules
+#    module      : the current selected module
+#-------------------------------------------------------------
+def menuTemplateData(module) :
+   return
+
+#=============================================================
 # Definition of the routes.
 #=============================================================
 #-------------------------------------------------------------
 # This one gives value for remote display
 #-------------------------------------------------------------
-@app.route("/json/<module>/<value>")
+@app.route("/json/<modName>/<value>")
 #@login_required
-def readValue(module, value):
-   # Searching the module
-   r = [x for x in domoWebModule.domoWebModule.domoWebModules if x.name == module]
-   # WARNING : r could be empty 
-   choice = r[0]
-
-   values = choice.templateData()
+def readValue(modName, value):
+   # Searching the module WARNING : module could be None
+   module = getDomoWebModuleByName(modName)
+   
+   values = module.templateData()
    if (not (value in values)) :
-      logger.debug("Unkonwn value '"+value+"' for module "+module)
+      logger.debug("Unkonwn value '"+value+"' for module "+module.name)
 
    print "*** Will return " + str(values[value])
 
@@ -82,130 +104,125 @@ def readValue(module, value):
 #-------------------------------------------------------------
 # Here is the route to access the defined modules
 #-------------------------------------------------------------
-@app.route("/menu/<module>", methods=['GET', 'POST'])
+@app.route("/menu/<modName>", methods=['GET', 'POST'])
 #@login_required
-def menu(module):
+def menu(modName):
    global logger
-   
-   # Searching the module
-   r = [x for x in domoWebModule.domoWebModule.domoWebModules if x.name == module]
-   # WARNING : r could be empty 
-   choice = r[0]
+
+   # Searching the module WARNING : module could be None
+   module = getDomoWebModuleByName(modName)
 
    # Data update from the user
    if request.method == 'POST':
-      if (choice.userCanWrite(current_user)) :
+      if (module.userCanWrite(current_user)) :
          # Applying the update on the module
-         choice.update(request.form)
+         module.update(request.form)
 
          tabList = []
-         for mod in domoWebModule.domoWebModule.domoWebModules :
-            if mod.userCanRead(current_user)  :
+         for mod in domoWebModule.domoWebModules :
+            logger.debug(mod.name + " is hidden ? ")
+            logger.debug(str(mod.hidden))
+            if ((mod.hidden == False) and (mod.userCanRead(current_user)))  :
                tabList.append(mod)
          templateData = {
             'tabList' :  tabList,
-            'currentMenu' : module
+            'module'  : module
          }
 
          # Updating displayed data
-         templateData.update(choice.templateData())
+         templateData.update(module.templateData())
  
          # Rendering the page
-         logger.info("Rendering "+ choice.html +" for module "+choice.name)
-         return render_template(choice.html, **templateData)
+         logger.info("Rendering "+ module.html +" for module "+module.name)
+         return render_template(module.html, **templateData)
       else :
          return render_template("login.html", error="Vous n'avez pas les droits suffisants")
    
    # Data display
    else :
-      if (choice.userCanRead(current_user)) :
+      if (module.userCanRead(current_user)) :
+
+         # Build tabList for main menu
+         #----------------------------
          tabList = []
-         for mod in domoWebModule.domoWebModule.domoWebModules :
-            if mod.userCanRead(current_user)  :
+         if (current_user.is_authenticated) :
+            cuName = current_user.name()
+         else :
+            cuName = "Unkonwn"
+
+         for mod in domoWebModule.domoWebModules :
+            if ('permissions' in debugFlags) :
+               logger.debug("Can we show '"+mod.name+"' to current user ('"+cuName+"') ?")
+               logger.debug("     hidden    = "+str(mod.hidden))
+               logger.debug("     readUsers = "+ mod.readaccess)
+            if ((mod.hidden == False) and mod.userCanRead(current_user))  :
+               if ('permissions' in debugFlags) :
+                  logger.debug("Yes, we can !")
                tabList.append(mod)
+            else :
+               if ('permissions' in debugFlags) :
+                  logger.debug("No, we can't !")
+         #############################
+         
          templateData = {
             'tabList' :  tabList,
-            'currentMenu' : module
+            'module'  : module
          }
-         templateData.update(choice.templateData())
+
+         templateData.update(module.templateData())
          notification = request.args.get('notification', '')
-         # Rendering the pagea
-         logger.info("Rendering "+ choice.html +" for module "+choice.name)
+
+         # Rendering the page
+         logger.info("Rendering "+ module.html +" for module "+module.name)
          if (notification is None) :
-            return render_template(choice.html, **templateData)
+            return render_template(module.html, **templateData)
          else :
-            return render_template(choice.html, notification=notification, **templateData)
+            return render_template(module.html, notification=notification, **templateData)
       else :
          return render_template("login.html", error="Vous n'avez pas les droits suffisants")
          
-
-@app.route('/menu/pouet', methods=['GET', 'POST'])
-def pouet():
-   templateData = {
-      'tabList' :  domoWebModule.domoWebModule.domoWebModules,
-      'currentMenu' : 'login'
-   }
-
-   # Searching the module
-   r = [x for x in domoWebModule.domoWebModule.domoWebModules if x.name == 'login']
-   # WARNING : r could be empty 
-   choice = r[0]
-
-   error = None
-   if request.method == 'POST':
-      User("Manu", "manu")
-      User("Admin", "admin")
-      print "On cherche " + request.form['username']
-      user = User.get( request.form['username'])
-      choice.update(request.form)
-      if (user is None) :
-         print "Iconnu ..."
-      else:
-         print "On connait : "+user.id+"/"+user.password
-         print user
-         if (user.password == request.form['password']) :
-            print "OK on log"
-            login_user(user)
-            print "Et on ouvre la page"
-            print current_user
-            return redirect(url_for('menu', module='aide'))
-         else :
-            error = 'Invalid Credentials. Please try again.'
-           
-   return render_template('login.html', error=error, **templateData)
-
-@app.route("/logout")
-def logout():
-    logout_user()
-    return redirect(url_for('menu', module='aide'))
-
 #-------------------------------------------------------------
-# Run an action on a module
+# Encore un essai, ...
 #-------------------------------------------------------------
-@app.route("/do/<module>/<action>")
+@app.route("/<modName>/<attribute>/<value>")
 #@login_required
-def do(module, action):
-   print "Module"
-   print module
-   print "Action"
-   print action
+def setModuleParameter(modName, attribute, value):
+   print "Dans le module "+modName
+   print "   L'attribut  "+ attribute
+   print "        reçoit "+value
 
-   # Searching the module
-   r = [x for x in domoWebModule.domoWebModule.domoWebModules if x.name == module]
-   # WARNING : r could be empty 
-   choice = r[0]
+#-------------------------------------------------------------
+# Run an action on a module.
+# . modName is the name of the module
+# . action is the action to run (modName.action() )
+# . destModule, if present, is the name of the module to display
+#   (eg if module is a switch, you may want to display the
+#   switch parent)
+#-------------------------------------------------------------
+@app.route("/do/<modName>/<action>")
+@app.route("/do/<modName>/<action>/<destModule>")
+#@login_required
+def do(modName, action,destModule=""):
 
-   print "Le choix est "
-   print choice.name
+   # Searching the module WARNING : module could be None
+   module = getDomoWebModuleByName(modName)
+
+   if not destModule :
+      destModule=modName
+      
+   print "%%% Destination : '"+destModule+"'"
+   
+   if ('actions' in debugFlags) :
+      logger.debug("Trying to run action '"+action+"' on '"+modName+"' (class '"+module.__class__.__name__+"')")
    
    print "Les actions sont"
-   print choice.__class__.actions
+   print module.__class__.actions
 
-   if (hasattr(choice, action)) :
+   if (hasattr(module, action)) :
       print "** " + action + " est connue"
-      actionFunc = getattr(choice, action)
+      actionFunc = getattr(module, action)
       print actionFunc
-      getattr(choice, action)()
+      getattr(module, action)()
       
       if (hasattr(actionFunc, "isAModuleAction")) :
          print "** C'est une action"
@@ -213,20 +230,19 @@ def do(module, action):
          print "** C'est PAS une action mon cochon"
          print vars(actionFunc)
          
-   if (action in choice.__class__.actions) :
-      print "+++++++++++ Connue"
+   if (action in module.__class__.actions) :
       # Is the user allowed to run an action on this module ?
-      if (choice.userCanWrite(current_user)) :
+      if (module.userCanWrite(current_user)) :
          # Searching and calling the corresponding action
-         getattr(choice, action)()
+         getattr(module, action)()
 
-         return redirect(url_for("menu", module=module, notification="C'est fait"))
+         return redirect(url_for("menu", modName=destModule, notification="C'est fait"))
       else :
-         return redirect(url_for("menu", module=module, notification="Forbidden"))
+         return redirect(url_for("menu", modName=destModule, notification="Forbidden"))
    else :
       print("Action "+ module + "." + action +  " inconnue")
       logger.debug("Action "+ module + "." + action +  " inconnue")
-      return redirect(url_for("menu", module=module, notification="Erreur interne"))
+      return redirect(url_for("menu", modName=module.name, notification="Erreur interne"))
 
 #-------------------------------------------------------------
 # List all available data
@@ -235,69 +251,155 @@ def do(module, action):
 #@login_required
 def listParameters():
    moduleList = []
+   hiddenList = []
 
-   print "*/*/*/*/*/ Préparons la liste"
+   logger.debug("Module list : ")
  
-   for x in domoWebModule.domoWebModule.domoWebModules :
-      print "- " + x.name + " :"
-
+   for x in domoWebModule.domoWebModules :
+      if (getattr(x, 'hidden') == False) :
+         moduleList.append(x)
+         logger.debug("- '" + x.name + "' (public) with the following attributes")
+      else :
+         hiddenList.append(x)
+         logger.debug("- '" + x.name + "' (hidden) with the following attributes")
       for a in x.getAttributes() :
-            print "  . "+ a
+            logger.debug("  . "+ a)
 
-#      newMod = {'name' : x.name, 'actions' : [], 'module' : []}
-#      td = x.templateData()
-#      for n in td :
-#         print "------------------"
-#         print n
-#         print td[n]
-#         print "------------------"
-#         newMod['module'].append({'name' : n, 'v' : td[n]})
-#      for a in x.__class__.actions :
-#         newMod['actions'].append(a)
-#      moduleList.append(newMod)
+   logger.debug("End of module list")
 
-      moduleList.append(x)
-   print "*/*/*/*/*/ Liste des modules"
-   print moduleList
+   return render_template("datalist.html", moduleList=moduleList, hiddenList=hiddenList)
 
-   return render_template("datalist.html",  moduleList=moduleList)
+@app.route("/logout")
+def logout():
+    logout_user()
+    return redirect(url_for('menu', modName='aide'))
 
 def strToClass(s):
-   if s in globals() and isinstance(globals()[s], types.ClassType):
+   if s in globals() and issubclass(globals()[s], domoWebModule):
       return globals()[s]
    return None
 
 #=============================================================
+# WARNING : the following functions should be ... elsewhere
+#=============================================================
+# Create a domoWebModule named name with value, where value can
+# be one of the following :
+#
+#   (1) value = previously_defined_name
+#   (2) value = attrType,attrParam
+#   (3) value = arbitrary string
+#
+#   where
+#
+#   attrType : actual class of the module
+#   attrParam : parameter list
+#
+def stringToDomoWebModule(name, value) :
+   attrParam = string.split(value, ",")
+   attrType = attrParam.pop(0)
+
+   # if the first list element is the name of a predefined module
+   # (1) case "value = previously_defined_name"
+   predefAttr = getDomoWebModuleByName(attrType)
+   if (predefAttr is not None) :
+      if ('objectCreation' in debugFlags) :
+         logger.debug("stringToDomoWebModule : '"+attrType+"' already defined")
+      return predefAttr     
+
+   # (3) case "value = arbitrary string"
+   attrCls = strToClass(attrType)
+   if (attrCls is None) :
+      if ('objectCreation' in debugFlags) :
+         logger.debug("stringToDomoWebModule '"+value+"' is a string" );
+      result = value # eg strings
+
+   # Is this a new module declaration ?
+   # (2) case "value = attrType,attrParam"
+   else :
+      if ('objectCreation' in debugFlags) :
+         logger.debug("Création d'un '"+attrType+"' avec comme param :");
+         logger.debug(attrParam)
+      result = attrCls(name, l=attrParam)
+   return result
+
+# Create objects from an option list and add these attributes to a
+# domoWebModule 
+def addAttributes(dwm, optionList):
+   ol = list(optionList)
+   for name, value in ol :
+      if ('objectCreation' in debugFlags) :
+         logger.debug("addAttributes : "+dwm.name+" reçoit un attribut '"+ name+"' de valeur '"+value+"'")
+
+      # Create a module
+      attr=stringToDomoWebModule(dwm.name+"."+name, value)
+
+      # Add this as an attribute
+      dwm.addAttribute(name, attr)
+      
+      del optionList[optionList.index((name, value))]
+
+
+#-------------------------------------------------------------
+# Creation of multiple modules described in a section of the config
+# file. Such a section is a list of
+#
+# name = type[,options]
+#
+# where type is a subclass of domoWebModule
+#-------------------------------------------------------------
+def createModulesFromSection(config, sectionName, hidden) :
+   tabList = config.items(sectionName)
+   for modName, optionList in tabList :
+      if ('objectCreation' in debugFlags) :
+         logger.debug("createModulesFromSection : " + modName + " (type " + optionList +")")
+      domoModule = stringToDomoWebModule(modName, optionList)
+
+      if hidden :
+         domoModule.addAttribute('hidden', True)
+      else :
+         domoModule.addAttribute('hidden', False)
+         
+      # Set as public [WARNING]
+      domoModule.setReadUsers(None)
+      
+      # Set options from the config
+      if (config.has_section(modName)) :
+         if ('objectCreation' in debugFlags) :
+            logger.debug("Loading parameters for' " + modName + "'")
+         addAttributes(domoModule, config.items(modName))
+
+            
+#=============================================================
 # Build the webui from config file
 #=============================================================
-def buildWebui(config):
+def buildWebui(config, l,  dbgFlg) :
+   global debugFlags
    global logger
-   logger = logging.getLogger('domoweb')
+   
+   debugFlags = dbgFlg
+
+   logger = l # ou alors logger = logging.getLogger('domoweb')
 
    # Create users : admin and the one defined in config
+   if ('users' in debugFlags) :
+      logger.debug("-- User creation ...")
    adminUser = User("admin", "admin")
    tabList = config.items('users')
    for login, desc in tabList :
       lines = string.split(desc, ":")
       User(login, lines[0])
 
+   # Create hidden modules
+   if ('objectCreation' in debugFlags) :
+      logger.debug("-- Hidden modules creation ...")
+      logger.debug("------------------------------")
+   createModulesFromSection(config, 'modules', True)
+   
    # Create tabs
-   tabList = config.items('tabs')
-   for modName, modType in tabList :
-      logger.info("Loading tab " + modName + " (type " + modType +")")
-      
-      # Retrieve the module class
-      domoWebModuleClass = strToClass(modType)
-      
-      # Create the object 
-      domoModule = domoWebModuleClass(modName)
-
-      # Set as public [WARNING]
-      domoModule.setReadUsers(None)
-      
-      # Set options from the config
-      if (config.has_section(modName)) :
-         domoModule.setOptions(config.items(modName))
+   if ('objectCreation' in debugFlags) :
+      logger.debug("-- Public modules creation ...")   
+      logger.debug("------------------------------")   
+   createModulesFromSection(config, 'tabs', False)   
 
 #-------------------------------------------------------------
 # Run the web server

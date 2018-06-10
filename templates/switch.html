@@ -1,0 +1,8 @@
+<div class="w3-container">
+    {% if bouton.getValue() ==  1 %}
+       <a href="{{ url_for('do', modName=bouton.name, action ='off', destModule=module.name) }}" class="w3-button w3-black"> Off </a>
+    {% else %}
+       <a href="{{ url_for('do', modName=bouton.name, action ='on', destModule=module.name) }}" class="w3-button w3-black"> On </a>
+    {% endif %}
+</div>
+

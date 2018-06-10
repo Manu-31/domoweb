@@ -6,9 +6,10 @@ import urllib
 import string
 import datetime
 
-import oneWireDevice
 from domoWebDataCache import *
 import domoTask
+from domoWebModule import domoWebModule, domoWebModuleAction
+import oneWireDevice
 
 #========================================================
 # High level devices (thermometer, switch, ...)
@@ -21,8 +22,9 @@ import domoTask
 # When a device is created, an history is built and values
 # are automatically logged
 #--------------------------------------------------------
-class domoWebDevice() :
-   def __init__(self) :
+class domoWebDevice(domoWebModule) :
+   def __init__(self, name, l=[]) :
+      domoWebModule.__init__(self, name)
       self.historic = domoWebCircularDataCache(24*12)
       self.runPeriodicGetData(datetime.timedelta(seconds=300))
 
@@ -40,20 +42,27 @@ class domoWebDevice() :
 # A basic on/off device
 #========================================================
 class domoWebSwitchDevice(domoWebDevice) :
-   def __init__(self) :
-      domoWebDevice.__init__(self)
-      self.status = 0
+   actions = [ 'on', 'off']
+   def __init__(self, name, l=[]) :
+      domoWebDevice.__init__(self, name, l)
+      self.addAttribute('status',  0)
       
+   @domoWebModuleAction
    def on(self) :
-      print " == domoWebSwitchDevice ON"
+      if ('switch' in domoWebModule.debugFlags) :
+         self.logger.debug(self.name+".on")
       self.status = 1
       
+   @domoWebModuleAction
    def off(self) :
-      print " == domoWebSwitchDevice OFF"
+      if ('switch' in domoWebModule.debugFlags) :
+         self.logger.debug(self.name+".off")
       self.status = 0
 
    def getValue(self) :
-      print " == domoWebSwitchDevice GET"
+      print domoWebModule.debugFlags
+      if ('switch' in domoWebModule.debugFlags) :
+         self.logger.debug(self.name+".getValue : "+str(self.status))
       return self.status
    
 #--------------------------------------------------------
@@ -78,21 +87,21 @@ class remoteSwitchDevice(domoWebSwitchDevice) :
       domoWebSwitchDevice.off(self)
   
    def getValue(self) :
-      print("remoteSwitchDevice.getValue")
+      #print("remoteSwitchDevice.getValue")
       if (self.statusSrc is None) :
-         print("   cached value")
+         #print("   cached value")
          return int(self.domoWebSwitchDevice())
       else :
-         print("   get remote value")
-         print self.statusSrc.getValue()
+         #print("   get remote value")
+         #print self.statusSrc.getValue()
          return int(self.statusSrc.getValue())
    
 #========================================================
 # A thermometer can give ... temperatures !
 #========================================================
 class domoWebThermometer(domoWebDevice) :
-   def __init__(self) :
-      domoWebDevice.__init__(self)
+   def __init__(self, name) :
+      domoWebDevice.__init__(self, name)
 
    def getValue(self) :
       return self.getTemperature()
@@ -121,7 +130,7 @@ def createThermometer(desc) :
    if (lines[0] == "remote") :
       return remoteThermometer(lines[1])
    elif (lines[0] == "oneWire") :
-      return oneWireDevice.oneWireThermometer(lines[1])
+      return oneWireDevice.oneWireThermometer(lines[0], lines[1])
    
 #--------------------------------------------------------
 #   Create a switch from a description :
@@ -143,10 +152,6 @@ def createSwitch(desc) :
       print "*** A FAIRE ***"
       gpioDevice.gpioDevice(int(value), gpioDevice.IN, gpioDevice.OFF)
       return None
-   
-
-
-
 
 
 #--------------------------------------------------------

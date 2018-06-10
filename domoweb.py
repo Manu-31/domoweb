@@ -42,10 +42,13 @@ import domoWebDataCache
 #   ${HOME}/.domoweb.cfg
 #-------------------------------------------------------------
 config = ConfigParser.ConfigParser()
+config.optionxform = str
 
 config.read(['/etc/domoweb.cfg', os.path.expanduser('~/.domoweb.cfg')])
 
-#  Le debogage
+#-------------------------------------------------------------
+# Default debuging
+#-------------------------------------------------------------
 logFileName = config.get('debug', 'logFileName')
 logConsole =  config.getboolean('debug', 'logConsole')
 debugFlags = config.get('debug', 'debugFlags')
@@ -63,6 +66,8 @@ else :
 logger = logging.getLogger('domoweb')
 logger.info("DomoWeb version " + domowebVersion + " running")
 
+domoWebModule.domoWebModule.debugFlags = debugFlags
+
 #-------------------------------------------------------------
 # cache initialisation
 #-------------------------------------------------------------
@@ -76,15 +81,15 @@ domoTask.domoTaskInit(logger, debugFlags)
 #-------------------------------------------------------------
 # 1wire initialization
 #-------------------------------------------------------------
-oneWireDevice.oneWireInit(config, logger)
+oneWireDevice.oneWireInit(config, logger, debugFlags)
 
 #-------------------------------------------------------------
 # gpioDevices init
 #-------------------------------------------------------------
-gpioDevice.gpioDeviceInit()
+gpioDevice.gpioDeviceInit(config, logger, debugFlags)
 
 #-------------------------------------------------------------
 # Configuration of displayed tabs
 #-------------------------------------------------------------
-webui.buildWebui(config)
+webui.buildWebui(config, logger, debugFlags)
 

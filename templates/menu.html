@@ -1,12 +1,12 @@
   <ul class="w3-navbar w3-light-grey">
       {% for menu in tabList %}
-      <li><a {% if menu.title.decode("utf-8") == currentMenu %}class="w3-red"{% endif %}
-	     href="{{ url_for('menu', module=menu.name) }}">{{menu.title.decode("utf-8")}}</a></li>
+      <li><a {% if menu.name.decode("utf-8") == module.name %}class="w3-red"{% endif %}
+	     href="{{ url_for('menu', modName=menu.name) }}">{{menu.title.decode("utf-8")}}</a></li>
       {% endfor %}
       <li class="w3-right w3-green">  {% if current_user.is_authenticated %}
   <a href="{{ url_for('logout') }}">{{ current_user.name() }}</a>
 {% else %}
- <a href="{{ url_for('menu', module='login') }}">login</a>
+ <a href="{{ url_for('menu', modName='login') }}">login</a>
 	{% endif %}
 	</li>
   </ul>

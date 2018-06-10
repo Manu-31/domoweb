@@ -1,0 +1,27 @@
+{% extends "domoweb.html" %}
+{% block maincontent %}
+ <div class="w3-row">
+   <div class="w3-col s6 w3-blue w3-center"><p>
+      <div class="w3-medium">Eau</div>
+      <div class="w3-jumbo"> {{ module.waterTemp.getTemperature() }}°</div>
+   </p></div>
+   <div class="w3-col s6 w3-green w3-center"><p>
+      <div class="w3-medium">Air</div>
+      <div class="w3-jumbo"> {{ module.roomTemp.getTemperature() }}°</div>
+   </p></div>
+</div>
+ <div class="w3-row">
+   <div class="w3-col s6  w3-center"><p>
+       {% with bouton = module.lightSwitch %}
+       {% include 'switch.html' %}
+       {% endwith %}
+   </p></div>
+   <div class="w3-col s6  w3-center"><p>
+       {% with bouton = module.pumpSwitch %}
+       {% include 'switch.html' %}
+       {% endwith %}
+   </p></div>
+</div>
+
+
+{% endblock %}

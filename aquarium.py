@@ -26,7 +26,7 @@ class aquarium(domoWebModule.domoWebModule) :
 
    def __init__(self, name, html="aquarium.html") :
       domoWebModule.domoWebModule.__init__(self, name, html)
-      self.logger = logging.getLogger('domoweb')
+#      self.logger = logging.getLogger('domoweb')
       self.etatEclairage = 0
       self.etatPompe = 0
       self.tempLogger = dataLogger.dataLogger()
@@ -79,17 +79,6 @@ class aquarium(domoWebModule.domoWebModule) :
             self.roomThermometer = createThermometer(value)
             self.logger.info("Aquarium waterTemp : " + value + " created")
 
-      ##############################################
-      # A test
-      t =   createThermometer("oneWire,28-0314640d3cff")
-      setattr(t, "isADomoWebModuleAttribute", 1)
-      setattr(self, "TestALaCon", t)
-      print "---------------"
-      print " On fait un test  :"
-      print vars(t)
-      print "---------------"
-      ##############################################
-      
       # Then we use the parent method
       domoWebModule.domoWebModule.setOptions(self, optionList)
 

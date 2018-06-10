@@ -1,4 +1,94 @@
-   Première tentative de construction d'un petit jouet domotique.
+A METTRE AU PROPRE
+
+   Les classe des modules héritent de domoWebModule. Chaque classe
+contient une liste de méthodes utilisables via le web : actions.
+Chaque module contient une liste d'attributs consultables/modifiables
+par le web : domoWebAttributes.
+
+Les principales classes
+-----------------------
+
+domoWebModule
+   domoWebDevice
+      domoWebSwitchDevice            Pour les interrupteurs
+         remoteSwitchDevice          A distance
+	 gpioSwitch                  Sur le GPIO du RPi
+      domoWebThermometer
+         remoteThermometer
+	 oneWireThermometer
+
+
+Gestion des attributs
+---------------------
+
+   Chaque module a des attributs liés à domoWeb. Ces attributs sont
+des attributs au sens de Python, mais sont également listés dans un
+attribut (au sens Python) domoWebAttributes. Ils peuvent donc être
+manipulés normalement dans le code. En revanche, toute manipulation
+liée à l'interface web testera d'abord si les attributs à lire/écrire
+sont des domoWebAttributes et si l'utilisateur a le droit, ...
+
+   Ajout d'un attribut
+   ...................
+
+   avec la méthode addAttribute() de domoWebModule
+
+   cette fonction ajoute un atttribut ou modifie sa valeur s'il
+existe déjà. Un attribut dont le nom est déjà utilisé pour un attribut
+non domoWeb n'est pas affecté.
+
+
+Exemple du bouzin avec le gpioSwitch
+
+   il hérite de domoWebSwitchDevice (et donc de domoWebDevice)
+
+Regardons domoWebSwitchDevice
+
+   Il hérite de domoWebDevice et a comme actions ['on', 'off']
+
+
+Gestion des actions
+-------------------
+
+Gestion des droits d'accès
+--------------------------
+
+Gestion de l'affichage
+----------------------
+
+   Mise en oeuvre dans le programme
+   ................................
+   
+   L'affichage d'un module est réalisé par la fonction menu(modName)
+du fichier webui.py. Le principe est simple :
+
+   . On construit la liste des modules accessibles pour afficher le menu
+   en haut page.
+   . Le tableau associatif templateData est mis à jour en appelant la
+   méthode templateData() du module à afficher
+   . Le template associé au module est rendu
+   
+   Construction d'un template
+   ..........................
+
+   Dans un template, on a accès à
+
+   . module qui est le module courant que l'on souhaite afficher. Ca
+   je veux le supprimer dès que je trouve comment m'en passer !
+   . Tous les éléments insérés dans templateData. C'est a priori par
+   là que tout doit être manipulé.
+   
+
+----------------------
+
+
+
+
+
+
+
+
+Première tentative de construction d'un petit jouet domotique.
 
 Description générale
 --------------------
@@ -103,26 +193,65 @@ classes de modules élémentaires
    oneWireDevice.py
   
 EN COURS
+   . Il faut nettoyer et commenter tout ça, ça commence à prendre
+   forme !
+   . Faire une fonction 'menuTemplateData' pour ne pas la refaire à chaque
+   fois ! Utiliser @app.context_processor ?
+
+   . Faire un affichage de temperature, et un aquarium fondé sur
+   generic, si ça passe, c'est bon !
+
+. Voir que faire avec la liste d'attributs qu'on peut passer après
+   le nom du type. L'idée est que chaque type a sa liste propre, comme
+   l'adresse pour les thermomètres oneWire. Mais du coup, chaque type
+   doit accepter un l= à son constructeur, ... On va partir de l'idée
+   que c'est systématiquement le dernier paramètre, avec [] comme
+   valeur par défaut.
    . Automatiser les ajouts d'attributs : voir aquarium avec un premier
    essai. Il va falloir le reporter dans domoWebModule. Du coup, on
-   devrait pouvoir supprimer aquarium, piscine, ... 
+   devrait pouvoir supprimer aquarium, piscine, ... Bon en fait pour
+   le moment ce n'est pas très clair. Utiliser getattr/setattr est peu
+   sûr (on peut interdire d'affecter des attributs existants).
+   C'est tout de même comme ça que je fais pour le moment (voir
+   domoWebModule). Reste le typage des attributs. Ils peuvent être
+   typés explicitement pour les types "évolués" mais pour les autres ?
+   L'absence de typage est elle un problème ou pas ?
+JEN SUIS A ESSAYER creer les objets et leurs attributs dans webui.py
+L'objectif est que tout hérite de domoWebModule
+
+   Pour le moment, j'essai de mettre un setter sur les attributs de
+   droit d'accès. Ca a l'air de pouvoir se faire, sauf que si le
+   config parser est case insensitive, c'est bof !
+
+   OK MAIS je fais quand même comme ça ! Attention avec les attributs
+qui renvoient des choses qui ne s'affichent pas, ... comme les readUser
+faut-il les mettre dans la liste ? Pas certain, ...
+
+   Ensuite il faut basculer complètement là dessus.
 
    [templates]
    . utiliser w3.CSS ? Ou bootstrap, ...
 
 URGENT
- 
+  
    . Faire une piscine utilisable et une en lecture seule, pour voir.
    On peut imaginer que la version RO ne soit pas visible des utilisateurs
    qui ont l'autre. Ou que le html diffère pour la version publique, ...
 
-   [user]
-   
+   . revoir la gestion de debugFlags
+   [user]   
    . logguer les login/logout
  
 A FAIRE
 
+   [domoWebModule]
+   . Permettre de passer des paramètres (par exemple venant d'un POST)
+   à la méthode "templateData" de sorte à permettre d'agit sur
+   certaines valeurs. Par exemple, on construira une liste de messages
+   différente dans le logger en fonction des choix de l'utilisateur.
+   
    [webui]
+   . une page par défaut si pas de module aide (voir route("/"))
    . faire une page 'Accès restreint' ou juste un message ? Que faire
    quand on essaie d'accéder une ressources interdite ? Sachant que
    le point ci dessus devrait permettre de limiter.
@@ -158,6 +287,10 @@ FAIT
 
    [webui]
    . composer la liste des onglets en fonction de l'utilisateur
+   . La classe 'domoWebModule'  est renommée par import 'generic'
+   . strtoclass ne fonctionne plus maintenant que domoWebModule hérite
+   de object, ... remplacé par issubclass
+
 
 REFERENCES
 

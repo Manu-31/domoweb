@@ -17,13 +17,11 @@ class User(UserMixin):
         self.logger = logging.getLogger('domoweb')
         user = User.get(username)
         if (user is None) :
-           print "Création de " + username
            self.id = username
            self.password = password
            User.user_database.update({username: self})
            self.logger.info("User '"+username+"' created")
         else :
-           print "Modification de " + username
            self = user
            self.password = password
            self.logger.info("User '"+username+"' updated")

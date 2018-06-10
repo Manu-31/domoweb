@@ -35,7 +35,7 @@ class domoWebCircularDataCache(domoWebDataCache) :
    def cacheData(self, data) :
       self.nbEntry = self.nbEntry +1
       if ('cacheVerbose' in debugFlags) :
-         logger.info("[cache] " + str(self.nbEntry) + " / " + str(self.size))
+         logger.info("[cache] " + str(self.nbEntry) + " / " + str(self.size)+ " <- "+str(data))
       self.data = [data] + self.data[0:min(self.nbEntry-2, self.size-1)]
 
    def getData(self, n=0) :

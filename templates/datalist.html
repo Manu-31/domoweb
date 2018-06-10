@@ -2,8 +2,11 @@
 {% block maincontent %}
 
 {% for obj in moduleList %}
- <div class="w3-container w3-red">
+ <div class="w3-container w3-green">
    <h1>Module = {{ obj.name }}</h1>
+</div>
+ <div class="w3-container w3-grey">
+   <h1>Read Access List = {{ obj.readaccesslist }}</h1>
 </div>
 
   <table class="w3-table-all">
@@ -12,27 +15,40 @@
       <th>Valeur</th>
     </tr>
 
-   {% for machin in obj.itesl %}
+    {% for machin in obj.getAttributes() %}
       <tr>
-         <td> {{ machin.name }} </td>
-         <td> {{ machin.v }} </td>
+         <td> {{ machin }} </td>
+         <td> {{ obj.getAttribute(machin) }}
+	    </td>
       </tr>
    {% endfor %}
    </table>
+{% endfor %}
+
+
+{% for obj in hiddenList %}
+ <div class="w3-container w3-red">
+   <h1>Module = {{ obj.name }}</h1>
+</div>
+ <div class="w3-container w3-grey">
+   <h1>Read Access List = {{ obj.readaccesslist }}</h1>
+</div>
 
   <table class="w3-table-all">
-    <tr class="w3-green">
-      <th>Action</th>
-      <th>Publique</th>
+    <tr class="w3-blue">
+      <th>Attribut</th>
+      <th>Valeur</th>
     </tr>
-   {% for ac in obj.actions %}
-      <tr>
-         <td> {{ ac }} </td>
-         <td> oui</td>
 
+    {% for machin in obj.getAttributes() %}
+      <tr>
+         <td> {{ machin }} </td>
+         <td> {{ obj.getAttribute(machin) }}
+	    </td>
+      </tr>
    {% endfor %}
    </table>
 {% endfor %}
-   
+  
 {% endblock %}
 
