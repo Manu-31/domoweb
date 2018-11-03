@@ -1,0 +1,18 @@
+{% extends "domoweb.html" %}
+{% block maincontent %}
+Un élément générique : {{ module.name }} <br>
+avec un attribut con : {{ module.unattribut }} <br>
+
+
+
+{% with thermo = module.temperature1 %}
+{% include 'test-var.html' %}
+{% endwith %}
+{% with thermo = module.temperature2 %}
+{% include 'test-var.html' %}
+{% endwith %}
+
+{% set tempHist = [("Une température", module.temperature1.getHistory()), ("Autre température", module.temperature2.getHistory())] %}
+{% include 'temphist.html' %}
+
+{% endblock %}

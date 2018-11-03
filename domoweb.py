@@ -1,72 +1,56 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #=============================================================
-#   Interface web pour mes petits jouets domotifiants.
-#
-#   A faire
-#
-#   0.2
-#      Une page avec des mesures de température, ...
-#
-# A voir http://sharedmemorydump.net/logging-data-temperature-with-raspberry-pi
-# 
-#=============================================================
-
-#domowebVersion = "0.00"   # First skeleton
-domowebVersion = "0.01"    # domoWebModules are now classes
 
 #=============================================================
 # Some imports
 #=============================================================
-import ConfigParser
 import os
-import logging
+import argparse
 
+import domoWebUser
 import oneWireDevice
 import webui
 import domoWebModule
+import domoWebModuleMgt
 import gpioDevice
 import domoTask
 import domoWebDataCache
-  
+
+from domoWebConfigParser import *
+import domoWebLogger 
+
 #=============================================================
 # Let's go
 #=============================================================
 
 #-------------------------------------------------------------
-# Lecture du fichier de configuration
-#
-# On va chercher la configuration dans les fichiers suivants et dans
-# cet ordre
-#   /etc/domoweb.cfg
-#   ${HOME}/.domoweb.cfg
+# Parsing args
 #-------------------------------------------------------------
-config = ConfigParser.ConfigParser()
-config.optionxform = str
+parser = argparse.ArgumentParser()
 
-config.read(['/etc/domoweb.cfg', os.path.expanduser('~/.domoweb.cfg')])
+parser.add_argument('-c', '--config',
+                    dest='configFileName')
+
+args=parser.parse_args()
 
 #-------------------------------------------------------------
-# Default debuging
+# Load configuration from a file. This function builds up the
+# domoWebConfigParser.config structure
 #-------------------------------------------------------------
-logFileName = config.get('debug', 'logFileName')
-logConsole =  config.getboolean('debug', 'logConsole')
-debugFlags = config.get('debug', 'debugFlags')
+configParserInit(args.configFileName)
 
 #-------------------------------------------------------------
-# Logging system configuration
+# Loggin facility initialization
 #-------------------------------------------------------------
-if (logConsole) :
-   logging.basicConfig(format='%(asctime)s - %(levelname)s:%(message)s',
-                       level=logging.DEBUG)
-else :
-   logging.basicConfig(filename=logFileName,
-                       format='%(asctime)s - %(levelname)s:%(message)s',
-                       level=logging.DEBUG)
-logger = logging.getLogger('domoweb')
-logger.info("DomoWeb version " + domowebVersion + " running")
+domoWebLogger.domoWebLoggerInit(config)
+logger = domoWebLogger.logger
+debugFlags = domoWebLogger.debugFlags
 
-domoWebModule.domoWebModule.debugFlags = debugFlags
+#-------------------------------------------------------------
+# User management
+#-------------------------------------------------------------
+domoWebUser.domoWebUserInit(config, logger, debugFlags)
 
 #-------------------------------------------------------------
 # cache initialisation
@@ -74,7 +58,7 @@ domoWebModule.domoWebModule.debugFlags = debugFlags
 domoWebDataCache.domoWebDataCacheInit(config, logger, debugFlags)
 
 #-------------------------------------------------------------
-# Task mgt init
+# Task management init
 #-------------------------------------------------------------
 domoTask.domoTaskInit(logger, debugFlags)
    
@@ -88,6 +72,17 @@ oneWireDevice.oneWireInit(config, logger, debugFlags)
 #-------------------------------------------------------------
 gpioDevice.gpioDeviceInit(config, logger, debugFlags)
 
+#-------------------------------------------------------------
+# domoWebModuleMgt  initalization
+#-------------------------------------------------------------
+domoWebModuleMgt.domoWebModuleManagementInit(config, logger, debugFlags)
+
+#-------------------------------------------------------------
+# Everything should have been initialized, we can start asynchronous
+# tasks 
+#-------------------------------------------------------------
+domoTask.domoTaskStart()
+   
 #-------------------------------------------------------------
 # Configuration of displayed tabs
 #-------------------------------------------------------------

@@ -1,18 +1,9 @@
 {% extends "domoweb.html" %}
+
 {% block maincontent %}
-Un élément générique : {{ module.name }} <br>
-avec un attribut con : {{ module.unattribut }} <br>
-Etat du switch : {{ module.bouton.getAttribute('status') }} <br>
 
-
-{% with thermo = module.temperature1 %}
-{% include 'test-var.html' %}
-{% endwith %}
-{% with thermo = module.temperature2 %}
-{% include 'test-var.html' %}
-{% endwith %}
-
-{% set tempHist = [("Une température", module.temperature1.getHistory()), ("Autre température", module.temperature2.getHistory())] %}
-{% include 'temphist.html' %}
+Un élément générique : {{ module.getAttribute("name") }} <br>
+avec un attribut con : {{ module.getAttribute("unattribut") }} <br>
+Et un sous module : {{ module.getAttribute("sm").getAttribute("name")  }} <br>
 
 {% endblock %}

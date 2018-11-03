@@ -5,7 +5,7 @@
 #========================================================
 
 try:
-    import RPi.GPIO as gpio
+   import RPi.GPIO as gpio
 except ImportError:
    import FakeRPi.GPIO as gpio
 
@@ -19,37 +19,85 @@ OUT = gpio.OUT
 ON = gpio.HIGH
 OFF = gpio.LOW
 
+#--------------------------------------------------------
+# gpio level stuff
+#--------------------------------------------------------
 class gpioDevice :
-   def __init__(self, pinNum, direction, initValue) :
-      self.pin = pinNum
-      self.direction = direction
-      gpio.setup(self.pin, self.direction)
+   def __init__(self) :
+      self.__direction = IN
+      self.__pin = None
 
-   def setValue(self, value):
-      gpio.output(self.pin, value)
+   @property
+   def pin(self) :
+      return self.__pin
+
+   @pin.setter
+   def pin(self, pin) :
+      print "gpioDevice "+self.name+".pin = "+str(pin)
+      self.__pin = int(pin)
+      if (self.__direction is not None) :
+         gpio.setup(int(self.__pin), self.__direction)
+      
+   @property
+   def direction(self) :
+      return self.__direction
+
+   @direction.setter
+   def direction(self, direction) :
+      self.__direction = direction
+      if (self.__pin is not None) :
+         gpio.setup(int(self.__pin), self.__direction)
+
+   @property
+   def value(self)  :
+      return gpio.input(self.pin)
+
+   @value.setter
+   def value(self, value):
+      if (self.__pin is not None and self.__direction is not None) :
+         if ((str(value) == "1") or (value == 1) or (value == "on") or (value == "Nn") or (value == "ON")):
+            gpio.output(self.__pin, gpio.HIGH)
+         else :
+            gpio.output(self.__pin, gpio.LOW)
 
 #--------------------------------------------------------
 # A switch
 #--------------------------------------------------------
 class gpioSwitch(gpioDevice, domoWebSwitchDevice) :
-   def __init__(self, name, pinNum=None, l=[]) :
-      if ('gpio' in debugFlags) :
-         logger.debug("gpioSwitch.__init__("+name+")")
-      gpioDevice.__init__(self, pinNum, OUT, OFF)
+   def __init__(self, name) :
+      if (('gpio' in debugFlags)  or ('all' in debugFlags)) :
+         logger.debug("gpioSwitch.__init__(name="+name+") IN")
+
+      # It is a gpio device
+      gpioDevice.__init__(self)
+      self.direction = OUT 
+      
+      # It is a switch device
       domoWebSwitchDevice.__init__(self, name)
-      # WARNING : A quoi ça sert ?
-      #self.addAttribute('on', "")         
-      #self.addAttribute('off', "")
+
+      # As such, it has a pin and a direction attribute
+      self.turnAttribute('pin')
+      self.turnAttribute('direction')
+
+      if (('gpio' in debugFlags)  or ('all' in debugFlags)) :
+         if ( self.pin is None) :
+            logger.debug("gpioSwitch.__init__(name="+name+") pin = ???")
+         else :
+            logger.debug("gpioSwitch.__init__(name="+name+") pin = "+ str(self.pin))
 
    def on(self) :
-     if ('gpio' in debugFlags) :
+     if (('gpio' in debugFlags)  or ('all' in debugFlags)) :
         logger.debug("gpioSwitch.on("+self.name+")")
-     domoWebSwitchDevice.on(self)
+     self.value = 1
      
-   def offswitch(self) :
-     if ('gpio' in debugFlags) :
+   def off(self) :
+     if (('gpio' in debugFlags) or ('all' in debugFlags)) :
         logger.debug("gpioSwitch.off("+self.name+")")
-     domoWebSwitchDevice.off(self)
+     self.value = 0
+
+   def getValue(self) :
+      return self.value
+
 
 #========================================================
 # module init
@@ -60,7 +108,7 @@ def gpioDeviceInit(c, l, d) :
    logger = l
    debugFlags = d
    
-   if (('gpio' in debugFlags) or ('modules' in debugFlags)) :
+   if (('gpio' in debugFlags) or ('modules' in debugFlags) or ('all' in debugFlags)) :
       logger.info("Initializing gpio subsystem")
    
    gpio.setwarnings(True) 

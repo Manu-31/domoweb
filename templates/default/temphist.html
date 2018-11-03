@@ -1,0 +1,6 @@
+{% block temphist %}
+<div class="w3-container w3-blue w3-center">
+   <div class="w3-medium"> {{ name | default("Historique") }}</div>
+   <div class="w3-small"> m={{ temphist.getMin() }} - {{ temphist.getMean() }} - M={{ temphist.getMax() }}</div>
+</div>
+{% endblock %}

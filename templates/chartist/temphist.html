@@ -1,0 +1,46 @@
+{% extends 'default/temphist.html' %}
+
+{% block temphist %}
+<div class="ct-chart ct-golden-section" id="{{ temphist.name }}"></div>
+<script>
+  var temperatures = [
+    {% for h in temphist.getTimeStampedData() %}
+      {x : new Date({{ h[0]|safe }}), y : {{ h[1]|safe }} }
+      {%- if not loop.last -%}
+         ,
+      {%- endif -%}
+    {% endfor %}
+  ];
+  var wholeday = [
+     {x: moment().startOf('day').add(1, 'seconds'),y : -100.0},
+     {x: moment().endOf('day'), y : -100.0}
+  ];
+  new Chartist.Line('#{{ temphist.name }}', {
+    series: [
+      {
+        name : 'Température',
+        data : temperatures
+      },{
+        name : 'wd',
+        data : wholeday
+      }
+    ]
+    },{
+      showPoint : false,
+      showLine  : true,
+      axisY : {
+       onlyInteger : true,
+       high : {{ tempHigh | default(40) }},
+       low  : {{ tempLow | default(10) }}
+     },
+     axisX: {
+       type: Chartist.FixedScaleAxis,
+       divisor: {{ nbDiv | default(12) }},
+       labelInterpolationFnc: function(value) {
+         return moment(value).format('HH:mm');
+       }
+     }
+  });
+</script>
+
+{% endblock %}

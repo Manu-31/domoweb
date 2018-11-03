@@ -12,27 +12,38 @@ debugFlags = {}
 
 class oneWireDevice :
    oneWireRootDir = '/sys/bus/w1/devices'
-   def __init__(self, address) :
-      self.setAddress(address)
+   def __init__(self, address=None) :
+      self.address = address
 
-   def setAddress(self, address) :
-      self.addAttribute('address', address)
+   @property
+   def address(self) :
+      return self.__address
+
+   @address.setter
+   def address(self, address) :
+      if address is not None :
+         print "oneWireDevice address setter set to '"+str(address)+"'"
+      else :
+         print "oneWireDevice address setter set to 'None'"
+      self.__address = address
 
 #--------------------------------------------------------
 # A thermometer
 #--------------------------------------------------------
 class oneWireThermometer(oneWireDevice, domoWebThermometer) :
-   def __init__(self, name, address=None, l=[]) :
-      if ('oneWire' in debugFlags) :
+   def __init__(self, name) :
+      if (('oneWire' in debugFlags) or ('all' in debugFlags)):
          self.logger.debug("oneWireThermometer.__init__("+name+", ...)")
-      if  l :
-         address = l[0]
 
       # First of all, this is a thermometer
       domoWebThermometer.__init__(self, name)
 
       # It is also a 1wire device
-      oneWireDevice.__init__(self, address)
+      oneWireDevice.__init__(self)
+
+      # As such, it has an address attribute
+      self.turnAttribute('address')
+      
 
    def read_temp_raw(self):
       if ('oneWire' in debugFlags) :
@@ -73,13 +84,19 @@ class oneWireThermometer(oneWireDevice, domoWebThermometer) :
 # Initialization of global parameters
 #========================================================
 def oneWireInit(config, logger, d) :
+    global debugFlags
+
     debugFlags = d
 
-    if (('oneWire' in debugFlags) or ('modules' in debugFlags)) :
+    if (('oneWire' in debugFlags) or ('modules' in debugFlags) or ('all' in debugFlags)) :
       logger.info("Initializing oneWire subsystem")
 
+    if (config.has_section('1wirefs')) :
+       oneWireDevice.oneWireRootDir = config.get('1wirefs', 'rootDir')
+       
+    if (('oneWire' in debugFlags) or ('modules' in debugFlags) or ('all' in debugFlags)) :
+      logger.info("   oneWire root is '"+oneWireDevice.oneWireRootDir+"'")
 
-    oneWireDevice.oneWireRootDir = config.get('1wirefs', 'rootDir')
     oneWireDevice.logger = logger
 
    

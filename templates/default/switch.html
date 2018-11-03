@@ -1,0 +1,7 @@
+<div class="w3-container">
+    {% if button.getAttribute('status') ==  1 %}
+       <a class="w3-btn w3-green" href="{{ url_for('setAttribute', modName=button.name, attribute='status', value='0', destModule=destination|default(module.name)) }}"> <i class="{{ iconOff | default("fas fa-toggle-off w3-large") }}"></i>  {{ name|default("Arrêter") }}</a>
+    {% else %}
+       <a class="w3-btn w3-grey" href="{{ url_for('setAttribute', modName=button.name, attribute='status', value='1', destModule=destination|default(module.name)) }}"> <i class="{{ iconOn|default("fas fa-toggle-on w3-large") }}"></i> {{ name|default("Démarrer") }}</a>
+    {% endif %}
+</div>

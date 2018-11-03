@@ -11,7 +11,9 @@ from domoWebUser import *
 class signin(domoWebModule.domoWebModule) :
    def __init__(self, name, l=[], html="login.html") :
       domoWebModule.domoWebModule.__init__(self, name, html)
+
       self.setReadUsers(None)
+      self.setWriteUsers(None)
 
 #-------------------------------------------------------------
 # The debugger page helper

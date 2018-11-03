@@ -1,3 +1,169 @@
+LA MAINTENANT TOUT DE SUITE
+   3. Démarrer le logbook
+   5. Sauvegarder une copie, virer les vieilleries et git push
+
+   DONE :
+   1. Finir la version actuelle de la route /menu
+   2. Clarifier le set/add/turn/get Attribute pour la suite
+   4. Ne laisser que de l'interface web dans webui 
+
+BUGS CONNUS A CORRIGER UN JOUR
+
+   . remplacer html par template
+   . La page par défaut est en dur /menu/aide : et si elle n'existe
+   pas ? Ou est illisible ? Il faut une page de fallback toujours
+   affichable et définir dans la config le module par défaut. Idée :
+   une option de la section tabs, ou le premier module qui y est
+   défini, ou le premier signin, ...
+   . la page /list est accessible en permanence (oops!) mais montre
+   des choses un peu étrange, ... à voir !
+   . voir si on peut cumuler les fichiers de config, ce qui permettrait
+   de mettre des sections 1wire, gpio, ... une fois pour toutes
+   . Utiliser le "Message Flashing" de flask
+   . la méthode module.templateData() est-elle vraiment utile ?
+   . gérer le cas de la tab login : elle est affichée à droite. Ne
+   pourrait-on pas la cacher à gauche ?
+   . chiffrer les mots de passe
+   . utiliser le login de flask
+   . rendre les 'domoWebDataCache' plus conformes à la logique
+   domoWebModule (nom, html, attributs,...)
+   . Définir des constantes de classes qui peuvent être initialisées
+   par le fichier de config et qui servent de valeur par défaut (eg
+   température min, ...)
+   . faire un "save" qui construit un fichier de config en fonction
+   des valeurs actuelles (chaud !)
+   . préprocesser le fichier de config par ninja2 ?
+
+POUR ESSAYER DE M'EN SORTIR
+
+*   . Bon, on en est au point de devoir éclaircir la gestion des
+*   attributs. Est-ce que cette notion sert seulement à quelque-chose
+*   !? Est-ce que s'il y a une ligne "attr = val" dans la section "mod"
+*   il ne faut pas juste faire "mod.attr = val" !? Il faut préciser
+*   tout ça, en n'oubliant pas la gestion de l'affichage, voire de
+*   scripts par la suite. Une fois tout ça tiré au clair, les deux
+*   points ci-dessous devraient suivre facilement. Attention, il y a
+*   des attibuts spécifiques (readAccess, html, type, ...)
+*
+*   HINT ! voir ~/examples/generic.cfg et la notion de module générique
+*
+*   HINT ! Un point important est probablement la fonction d'affichage
+*   (menu dans webui) qui construit notemment une liste de paramètres
+*   transmis à la fonction de rendu construite à partir de la liste des
+*   attributs.
+*   L'idée serait d'utiliser la fonction module.getAttributes("nom")
+*   comme c'est déjà le cas dans generic.html mais
+*      . Ce n'est pas obligatoire : module.nom fonctionne aussi. A la
+*   limite ce n'est pas dramatique : si on le fait, on ne perd pas
+*   grand chose pour le moment que le les droits sont liés au module,
+*   pas aux attibuts !
+*      . Il faut voir comment modifier (a priori setAttribute()) et
+*   comment utiliser des méthodes spécifiques. Pour ça, voir dans
+*   webui.py la route pour /do/<modName>/<action>
+*      
+*   Donc pour le moment on part sur le principe suivant.
+*
+*   Les attributs sont ajoutés par le constructeur. Voir par exemple
+*   celui de domoWebThermometer qui crée un attribut temperature. Ils
+*   sont ensuite manipulables avec getAttribute() (voire avec des
+*   getter et setter qui font le même travail, c'est-à-dire tester les
+*   droits). La création du module depuis le fichier de config peut
+*   également les manipuler.
+*
+*   FAIT : la même avec l'adresse (fait) puis idem avec le gpio.
+*   C'est en cours. J'ai donc encore une version fondée sur les Actions
+*   et je suis en train d'en faire une sur les attributs (voir
+*   switchAction.html vs switchAttribute.html). Si on peut se passer
+*   des actions, tout se fera à base d'attributs.
+*
+*   FAIT : on prend les droits en compte (en particulier dans la
+*   route setAttribute et les fonctions invoquées)
+*   A VOIR : le "all" ne semble pas fonctionner. Vérifier les droits
+*   par défaut et la fonction qui teste les droits.
+
+   A FAIRE : pour le moment, je ne teste pas les droits dans le code
+   (voir par exemple setAttribute()) mais uniquement dans webui : je
+   ne fais appel à une fonction (comme setAttribute()) que si
+   l'utilisateur connecté en a le droit. Est-ce la bonne voie ?
+   OUI, pour le moment ce suffit, MAIS A REDIGER !!
+   
+*   EN COURS : une version simple d'un aquarium, afin de faire un
+*   premier tutoriel !? EN COURS, reste à simplifier un peu l'écriture
+*   du html (invoquer des scripts déjà faits pour le thermomêtre et le
+*   switch)
+
+*   URGENT : Il est urgent de faire une page avec des paramètres
+*   modifiables pour tester les POST et la méthode update(), ... Par
+*   exemple une température min et une max sur un thermomètre ? Qui
+*   déclencherait une action sur un switch. Ca permet de tout tester.
+   
+   A FAIRE : utiliser les sessions de flask afin de stocker le theme
+   par exemple.
+   
+   ENSUITE : createModulesFromSection() pourrait renvoyer une liste
+   des modules créés. Ainsi on pourrait avoir une liste des tab. Cela
+   permettrait (1) de se passer de l'attribut 'hidden' et (2) de
+   définir l'ordre des tabs comme étant l'ordre de cette liste. Avec
+   le premier qui est celui affiché par défaut (attention, il peut
+   changer en fonction de qui est connecté !)
+
+*   ENSUITE : organiser les templates pour me permettre de faire des
+*   essais avec différents framework de construction de site
+*   (bootstrap, ...) et d'affichage de données (chartist, echarts, d3,
+*   ...). Pour le moment, on peut se contenter de répertoires bien
+*   rangés, ce sera déjà un bon début ! Parcequ'il y a deux aspects du
+*   thème pas encore clairs pour moi : le static (css, ..) et les
+*   templates (*.html), ...
+   
+   A FAIRE : en profiter peut être pour commencer à rédiger quelques
+   lignes pour l'installation. Là apparemment il manque des polices,
+   ...
+   
+   ENSUITE la prochaine étape est de supprimer les listes d'options
+   par défaut (FAIT)
+
+   temp = oneWireThermometer,28-0314640d3cff
+
+   va devenir ( A FAIRE)
+   
+   temp = oneWireThermometer,address=28-0314640d3cff
+
+   et les attributs sont parsés et positionnés explicitement avec leur
+   nom, comme dans une section :
+   [tp]
+   type = oneWireThermometer
+   address=28-0314640d3cff
+   ...
+   temp = tp
+   
+   Après, si au final il faut remplacer addAttribute (m, x, v) par
+   m.x=v et y=m.getAttribute(x) par y=m.x, ce n'est pas un soucis !
+
+   . Basculer la gestion des utilisateurs dans le fichier
+   domoWebUser.py : au moins la gestion des listes
+   d'utilisateurs. Pour ça, il faut d'abord éclaircir cette histoire
+   de readUsers et readaccess : pourquoi ces deux listes qui ont l'air
+   redondantes ?
+  
+   . Faire une petite page d'erreur sur laquelle basculer en cas de
+   problème ou d'interdiction.
+   
+   . ajouter un mot-clef "all" dans le debug, ...
+      oneWire.py       OK
+      gpioDevice.py    OK
+      webui.py         OK
+   En profiter pour se faire une religion sur le mot-clef 'all' et
+      documenter tout ça, ...
+      
+PROCHAINS CHANTIERS
+
+   Les historiques : loguer les actions afin de pouvoir observer ce
+   qui s'est passé : définir un objet logBook. Chaque setAttribute y
+   inscrit une ligne.
+   Les Tasks
+   Les actions...
+
+   
 A METTRE AU PROPRE
 
    Les classe des modules héritent de domoWebModule. Chaque classe
@@ -5,53 +171,6 @@ contient une liste de méthodes utilisables via le web : actions.
 Chaque module contient une liste d'attributs consultables/modifiables
 par le web : domoWebAttributes.
 
-Les principales classes
------------------------
-
-domoWebModule
-   domoWebDevice
-      domoWebSwitchDevice            Pour les interrupteurs
-         remoteSwitchDevice          A distance
-	 gpioSwitch                  Sur le GPIO du RPi
-      domoWebThermometer
-         remoteThermometer
-	 oneWireThermometer
-
-
-Gestion des attributs
----------------------
-
-   Chaque module a des attributs liés à domoWeb. Ces attributs sont
-des attributs au sens de Python, mais sont également listés dans un
-attribut (au sens Python) domoWebAttributes. Ils peuvent donc être
-manipulés normalement dans le code. En revanche, toute manipulation
-liée à l'interface web testera d'abord si les attributs à lire/écrire
-sont des domoWebAttributes et si l'utilisateur a le droit, ...
-
-   Ajout d'un attribut
-   ...................
-
-   avec la méthode addAttribute() de domoWebModule
-
-   cette fonction ajoute un atttribut ou modifie sa valeur s'il
-existe déjà. Un attribut dont le nom est déjà utilisé pour un attribut
-non domoWeb n'est pas affecté.
-
-
-Exemple du bouzin avec le gpioSwitch
-
-   il hérite de domoWebSwitchDevice (et donc de domoWebDevice)
-
-Regardons domoWebSwitchDevice
-
-   Il hérite de domoWebDevice et a comme actions ['on', 'off']
-
-
-Gestion des actions
--------------------
-
-Gestion des droits d'accès
---------------------------
 
 Gestion de l'affichage
 ----------------------
@@ -261,9 +380,6 @@ A FAIRE
    pour expliquer tout ça
 
    [general]
-   . gpioDevice (en cours) pour utiliser dans aquarium 
-   . Mettre des get/set pour les paramètres (les chercher dans les
-attributs en fonction du nom fourni dans templateData ?)
    . Refaire la méthode templateData en faire un attribut de classe
 comme actions ? Pas forcément car certains attributs peuvent varier
 d'une instance à l'autre.
@@ -273,23 +389,9 @@ d'une instance à l'autre.
 les paramètres modifiables. Une première tentative est en cours
 (datalist.html et route list). 
 
-   [user]
-   . mettre un nom et un identifiant
-   . mots de passe chiffrés !
 
    [debug]
    . selection du niveau de log
-
-
-FAIT
-   [debug]
-   . mise en page (table)
-
-   [webui]
-   . composer la liste des onglets en fonction de l'utilisateur
-   . La classe 'domoWebModule'  est renommée par import 'generic'
-   . strtoclass ne fonctionne plus maintenant que domoWebModule hérite
-   de object, ... remplacé par issubclass
 
 
 REFERENCES

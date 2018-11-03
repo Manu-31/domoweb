@@ -7,8 +7,6 @@
 #=============================================================
 import string
 import logging
-#import webui
-
 from domoWebUser import *
 
 def printUserList(l) :
@@ -23,7 +21,6 @@ def printUserList(l) :
 #=============================================================
 # A domoWebModule is characterized by
 # . name
-# . title            to be displayed
 # . html             to be rendered
 # . templateData()   to tune the html before rendering
 # . setOptions()     to set some options (eg based on a config file)
@@ -36,52 +33,51 @@ class domoWebModule(object) :
    debugFlags = {}
    
    # The constructor *must* be called by any subclass constructor
-   def __init__(self, name, html="error.html", l=[]):
+   def __init__(self, name, html="error.html") :
       self.logger = logging.getLogger('domoweb')
-
-      # Several modules with the same name is a bad idea !
-      if (len([x for x in domoWebModule.domoWebModules if x.name == name]) != 0) :
-         debug("module "+name+" defined twice !!!")
-      self.setName(name)
 
       # List of attributes that may be used in domoWeb. Warning : any
       # attribute CAN be used. Only domoWebAttributes will be shown in
       # automatic listings
       self.domoWebAttributes = []
-      self.setTitle(name)
-      self.setHtml(html)
 
-      self.addAttribute('hidden', False)
+      # Several modules with the same name is a bad idea !
+      if (len([x for x in domoWebModule.domoWebModules if x.name == name]) != 0) :
+         debug("module "+name+" defined twice !!!")
+      
+      self.name = name
+      self.turnAttribute('name')
+
+      self.html = html
+      self.turnAttribute('html')
+
+      self.addAttribute('hidden', True) # Par défaut, on ne montre pas
 
       # Là, c'est un peu tricky, ...
       self.addAttribute('readAccess', "")
       self.addAttribute('writeAccess', "")
 
+      print "***** ATTENTION DROITS PAR DEFAUT A REVOIR *****"
+      self.readUsers = None #[ User.get("all") ]
+      self.writeUsers = None #[ adminUser ]
+
       domoWebModule.domoWebModules.append(self)
       if ('objectCreation' in domoWebModule.debugFlags) :
          self.logger.debug("Module '"+name+"' created")
-      
+
 
    # Update some data from a dict (should be overridden)
    def update(self, dataDict):
       for name in dataDict :
          print self.name + "."+ name + " <- "+dataDict[name]
-
-   # Name and html have are a bit special
-   def setName(self, name):
-      self.name = name
-
-   def setHtml(self, html) :
-      self.addAttribute('html', html)
-
-   def setTitle(self, title):
-      self.addAttribute('title', title) 
-
+         self.setAttribute(name, dataDict[name])
 
    # Build a dictionary with local parameters
    # This dictionary will be used to display the web page
    # for the module. 
    def templateData(self):
+      print "              HA ! TU VOIS QUE JE SERS A QUELQUE CHOSE  !!!"
+      exit
       templateData = {} #{'domoWebModuleName' : self.name}
 
       # Searching attributes
@@ -101,22 +97,38 @@ class domoWebModule(object) :
    #=========================================================
    # Add an attribute
    def addAttribute(self, attrName, attrValue) :
-      if ('objectAttributes' in domoWebModule.debugFlags) :
+      if (('objectAttributes' in domoWebModule.debugFlags) or ('all' in domoWebModule.debugFlags)) :
          self.logger.debug(self.name+"."+"addAttribute("+attrName+", <value>)")
-      # We do not update existing non domoWeb attributes
-      if (getattr(self, attrName, None) == None):
-         if ('objectAttributes' in domoWebModule.debugFlags) :
+      # We do not update existing non domoWeb attributes. Use
+      # turnAttribute first
+      if (not hasattr(self, attrName)):
+         if (('objectAttributes' in domoWebModule.debugFlags) or ('all' in domoWebModule.debugFlags)) :
             self.logger.debug("   (new attribute)")
          setattr(self, attrName, attrValue)
          # Register this attribute
          self.domoWebAttributes.append(attrName)
-      elif attrName in self.getAttributes() :
-         if ('objectAttributes' in domoWebModule.debugFlags) :
-            self.logger.info("   (updated)")
-         setattr(self, attrName, attrValue)
       else :
-         if ('objectAttributes' in domoWebModule.debugFlags) :
-            self.logger.debug("   (unset)")
+         if attrName in self.getAttributes() :
+            if (('objectAttributes' in domoWebModule.debugFlags) or ('all' in domoWebModule.debugFlags)) :
+               self.logger.info("   (updated)")
+            setattr(self, attrName, attrValue)
+         else :
+            if (('objectAttributes' in domoWebModule.debugFlags) or ('all' in domoWebModule.debugFlags)) :
+               self.logger.debug("   (unset)")
+      if (('objectAttributes' in domoWebModule.debugFlags) or ('all' in domoWebModule.debugFlags)) :
+         self.logger.debug(self.name+"."+"addAttribute("+attrName+") done")
+
+   # Turn a pre-defined python attribute into a DomoWeb one
+   def turnAttribute(self, attrName) :
+      if (attrName not in self.getAttributes()) :
+         self.domoWebAttributes.append(attrName) 
+
+   # Set an attribute value. should use mod.attr = val with a setter
+   def setAttribute(self, attr, val) :
+      print "     **** ATTENTION, ON DOIT VERIFIER EXISTENCE ET DROIT !! *** "
+      print "     **** ET ON DOIT ENREGISTRER CA DANS LE LIVRE DE BORD!! *** "
+      setattr(self, attr, val)
+      
 
    # Get attribute list
    def getAttributes(self) :
@@ -124,7 +136,19 @@ class domoWebModule(object) :
 
    # Get an attribute value
    def getAttribute(self, attr) :
-      return getattr(self, attr, None)
+      if (('objectAttributes' in domoWebModule.debugFlags) or ('all' in domoWebModule.debugFlags)) :
+         self.logger.info("getAttribute('"+self.name+"', '"+attr+"')")
+                     
+      # WARNING : should we check readAccess ?
+      if (attr in self.getAttributes()) :
+         if (('objectAttributes' in domoWebModule.debugFlags) or ('all' in domoWebModule.debugFlags)) :
+            self.logger.info("getAttribute : got it !")
+         return getattr(self, attr, None)
+      else :
+         if (('objectAttributes' in domoWebModule.debugFlags) or ('all' in domoWebModule.debugFlags)) :
+            self.logger.info("getAttribute : unknown !")
+         
+         return None
 
    def name(self):
       return self.name
@@ -196,7 +220,8 @@ class domoWebModule(object) :
  
    # Is user allowed to read data from this module ?
    def userCanRead(self, user) :
-      return ((self.readUsers is None) or ((user in self.readUsers) and (user.is_authenticated)))
+      allUser=User.get('all')
+      return ((self.readUsers is None) or (((user in self.readUsers) or (allUser in self.readUsers)) and (user.is_authenticated)))
 
    # set the writer list
    def setWriteUsers(self, userList) :
@@ -213,20 +238,9 @@ class domoWebModule(object) :
  
    # Is user allowed to read data from this module ?
    def userCanWrite(self, user) :
-      if isinstance(user, User) :
-         self.logger.debug("userCanWrite("+self.name+", "+user.name+")")
-      else :
-         self.logger.debug("userCanWrite("+self.name+", (none))")
+      allUser=User.get('all')
+      return ((self.writeUsers is None) or (((user in self.writeUsers) or (allUser in self.writeUsers)) and (user.is_authenticated)))
 
-      if self.writeUsers is None :
-         l = "None"
-      else :
-            l = ""
-            for u in self.writeUsers :
-               l = l+" "+u.name()
-      if ('users' in domoWebModule.debugFlags) :
-         self.logger.debug("    writeUsers : "+l)
-      return ((self.writeUsers is None) or ((user in self.writeUsers) and (user.is_authenticated)))
 
    #-------------------------------------------------------------
    # The hidden property also deserves a special setter that could
@@ -319,8 +333,10 @@ log_handler = webPageHandler()
 # A basic module : a debug page
 #=============================================================
 class debug(domoWebModule) :
-   def __init__(self, name, l=[],html="debug.html") :
-      domoWebModule.__init__(self, name, html)
+   def __init__(self, name) :
+      domoWebModule.__init__(self, name)
+      self.html = "debug.html"
+      #self.addReadUser(User.get("admin"))
 
 #-------------------------------------------------------------
 # The debugger page helper
@@ -341,19 +357,34 @@ class debug(domoWebModule) :
 # A basic module : a help page
 #=============================================================
 class help(domoWebModule) :
-   def __init__(self, name, l=[], html="help.html") :
-      domoWebModule.__init__(self, name, html)
-
+   def __init__(self, name) :
+      domoWebModule.__init__(self, name)
+      self.html = "help.html"
+      self.readUsers = None # Everyone deserve some help !
+      
 #=============================================================
 # A generic module : include a web page
 #=============================================================
 class embed(domoWebModule) :
-   def __init__(self, name, html="iframe.html") :
-      domoWebModule.__init__(self, name, html)
+   def __init__(self, name) :
+      domoWebModule.__init__(self, name)
+      self.html = "iframe.html"
 
    def templateData(self):
       templateData = {}
       templateData['url'] = self.url
 
       return templateData
+
+
+
+
+
+
+
+
+
+
+
+
 

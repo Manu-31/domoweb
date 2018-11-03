@@ -78,9 +78,24 @@ def runTaskQueue() :
          if ('taskVerbose' in debugFlags) :
             logger.info("Running task")
          f(d)
-          
+
 #========================================================
-# Subsystem initalization
+# Starting tasks
+#========================================================
+def domoTaskStart() :
+   if ('task' in debugFlags) :
+       logger.info("Running tasks")
+   # These 3 tasks should be removed
+   #queueTask(datetime.datetime.now() + datetime.timedelta(seconds=30), affiche, "Plus tard")
+   #queueTask(0, affiche, "Maintenant")
+   #queueTask(datetime.datetime.now(), affiche, "Periode", datetime.timedelta(seconds=5))
+
+   mainThread = threading.Thread(target=runTaskQueue)
+   mainThread.start()
+    
+#========================================================
+# Subsystem initalization.
+# No task is start yet, as some subsystems may not be ready
 #========================================================
 def domoTaskInit(l, dbgFlg) :
    global debugFlags
@@ -92,12 +107,5 @@ def domoTaskInit(l, dbgFlg) :
    if ('task' in debugFlags) :
        logger.info("Initializing domoTask subsystem")
 
-   # These 3 tasks should be removed
-   #queueTask(datetime.datetime.now() + datetime.timedelta(seconds=30), affiche, "Plus tard")
-   #queueTask(0, affiche, "Maintenant")
-   #queueTask(datetime.datetime.now(), affiche, "Periode", datetime.timedelta(seconds=5))
-
-   mainThread = threading.Thread(target=runTaskQueue)
-   mainThread.start()
    
     

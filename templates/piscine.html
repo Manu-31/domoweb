@@ -1,34 +1,63 @@
 {% extends "domoweb.html" %}
 {% block maincontent %}
- <div class="w3-row">
-   <div class="w3-col s6 w3-blue w3-center"><p>
-      <div class="w3-medium">Piscine</div>
-      <div class="w3-jumbo"> {{ waterTemp }}°</div>
-   </p></div>
-   <div class="w3-col s6 w3-green w3-center"><p>
-      <div class="w3-medium">Local</div>
-      <div class="w3-jumbo"> {{ outsideTemp }}°</div>
-   </p></div>
-</div>
+<div class="w3-row">
+  <div class="w3-col m4  w3-center"><p>
+    <div class="w3-row">
+      {% with thermometer=module.getAttribute('air-temp') %}
+      {% with name="Air ambiant" %}
+      {%   include templateTheme + '/thermometer.html' %}
+      {% endwith %}
+      {% endwith %}
+    </div>
+    <div class="w3-row">
+      {% with temphist=module.getAttribute('air-temp').getAttribute('historic') %}
+      {%   include templateTheme + '/temphist.html' %}
+      {% endwith %}
+    </div>
+  </div>
 
-<br>
- <div class="w3-row">
-   <div class="w3-col s4  w3-center"><p>
-       {% if etatEclairage == 1 %}
-          <i class="fa fa-lightbulb-o w3-large"></i>
-          <a class="w3-btn w3-green" value="Eteindre" href="{{ url_for('do', module=module, action='lightOff') }}">
-          <i class="fa fa-lightbulb-o  w3-large"></i> Eteindre</a>
-       {% else %}
-          <a class="w3-btn w3-black" value="Allumer" href="{{ url_for('do', module=module, action='lightOff') }}">
-          <i class="fa fa-lightbulb-o  w3-large"></i> Allumer</a>
-       {% endif %}
-   </p></div>
-   <div class="w3-col s4  w3-center"><p>
-    <input class="w3-btn" value="Filtration">
-   </p></div>
-   <div class="w3-col s4  w3-center"><p>
-    <input class="w3-btn" value="Oxygène">
-   </p></div>
+  <div class="w3-col m4  w3-center"><p>
+    <div class="w3-row">
+      {% with thermometer=module.getAttribute('water-temp') %}
+      {% with name="Eau du bassin" %}
+      {%   include templateTheme + '/thermometer.html' %}
+      {% endwith %}
+      {% endwith %}
+    </div>
+    <div class="w3-row">
+      {% with temphist=module.getAttribute('water-temp').getAttribute('historic') %}
+      {%   include templateTheme + '/temphist.html' %}
+      {% endwith %}
+    </div>
+  </div>
+</div>
+<div class="w3-row">
+  <div class="w3-col m2  w3-center"><p>
+    {% with light=module.getAttribute('light-switch') %}
+    {%   include templateTheme + '/switch-light.html' %}
+    {% endwith %}
+  </div>
+  <div class="w3-col m2  w3-center"><p>
+    {% with button=module.getAttribute('pump-switch') %}
+    {% with name="Filtration" %}
+    {%   include templateTheme + '/switch.html' %}
+    {% endwith %}
+    {% endwith %}
+  </div>
+  <div class="w3-col m2  w3-center"><p>
+    {% with button=module.getAttribute('ph-switch') %}
+    {% with name="pH mètre" %}
+    {%   include templateTheme + '/switch.html' %}
+    {% endwith %}
+    {% endwith %}
+  </div>
+  <div class="w3-col m2  w3-center"><p>
+    {% with button=module.getAttribute('robot-switch') %}
+    {% with name="Robot" %}
+    {%   include templateTheme + '/switch.html' %}
+    {% endwith %}
+    {% endwith %}
+  </div>
 </div>
 
 {% endblock %}

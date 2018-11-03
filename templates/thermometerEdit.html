@@ -1,0 +1,9 @@
+{% extends "domoweb.html" %}
+
+{% block maincontent %}
+
+   {% with thermometer=module %}
+   {%   include templateTheme + '/thermometerEdit.html' %}
+   {% endwith %}
+
+{% endblock %}
