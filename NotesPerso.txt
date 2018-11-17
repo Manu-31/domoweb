@@ -1,15 +1,10 @@
-LA MAINTENANT TOUT DE SUITE
-   3. Démarrer le logbook
-   5. Sauvegarder une copie, virer les vieilleries et git push
-
-   DONE :
-   1. Finir la version actuelle de la route /menu
-   2. Clarifier le set/add/turn/get Attribute pour la suite
-   4. Ne laisser que de l'interface web dans webui 
-
 BUGS CONNUS A CORRIGER UN JOUR
 
+   . Attention, si pas de type : ça plante. Il faut mettre un type
+   par défaut (eg generic)
+   . pourquoi chartist/temphist.html décale au bout d'un moment !?
    . remplacer html par template
+   . mettre la date et l'heure en bas à droite
    . La page par défaut est en dur /menu/aide : et si elle n'existe
    pas ? Ou est illisible ? Il faut une page de fallback toujours
    affichable et définir dans la config le module par défaut. Idée :
@@ -33,7 +28,11 @@ BUGS CONNUS A CORRIGER UN JOUR
    . faire un "save" qui construit un fichier de config en fonction
    des valeurs actuelles (chaud !)
    . préprocesser le fichier de config par ninja2 ?
-
+   . pourquoi les dates des dataCache ne sont pas des datetime ? A
+   quoi bon les convertir ? OK il faut le faire pour l'affichage
+   apparemment, mais on peut se contenter de ça, ... genre les
+   fonctions avec timestamp sont en millisecondes depuis 1/1/70
+   
 POUR ESSAYER DE M'EN SORTIR
 
 *   . Bon, on en est au point de devoir éclaircir la gestion des

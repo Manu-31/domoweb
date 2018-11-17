@@ -4,7 +4,7 @@
 <div class="ct-chart ct-golden-section" id="{{ temphist.name }}"></div>
 <script>
   var temperatures = [
-    {% for h in temphist.getTimeStampedData() %}
+    {% for h in temphist.getTimeStampedData(start=startOfDay) %}
       {x : new Date({{ h[0]|safe }}), y : {{ h[1]|safe }} }
       {%- if not loop.last -%}
          ,
@@ -26,7 +26,7 @@
       }
     ]
     },{
-      showPoint : false,
+      showPoint : true,
       showLine  : true,
       axisY : {
        onlyInteger : true,

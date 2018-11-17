@@ -8,9 +8,10 @@ import datetime
 
 from domoWebDataCache import *
 import domoTask
-from domoWebModule import domoWebModule, domoWebModuleAction
+from domoWebModule import domoWebModule
 import domoWebAction
 import oneWireDevice
+import domoWebLogBook
 
 #========================================================
 # High level devices (thermometer, switch, ...)
@@ -73,13 +74,11 @@ class domoWebSwitchDevice(domoWebDevice) :
          print "... On"
          self.on()
          
-   @domoWebModuleAction
    def on(self) :
       if ('switch' in domoWebModule.debugFlags) :
          self.logger.debug(self.name+".on")
       self.__status = 1
       
-   @domoWebModuleAction
    def off(self) :
       if ('switch' in domoWebModule.debugFlags) :
          self.logger.debug(self.name+".off")
@@ -111,22 +110,22 @@ class domoWebThermometer(domoWebDevice) :
       #print "??? " + str(res)
       if (res > self.maximum) :
          if (self.level != 2 ) :
-            print "*** Houlà ça chauffe !"
+            domoWebLogBook.logBookAddEvent("*** Houlà ça chauffe !")
             self.level = 2
             if (self.actionHigh is not None) :
                self.actionHigh.run()
       elif (res < self.minimum) :
          if (self.level != 0) :
-            print "*** Hé ça caille !"
+            domoWebLogBook.logBookAddEvent("Hé ça caille !")
             self.level = 0
             if (self.actionLow is not None) :
                self.actionLow.run()
       else :
          if (self.level == 0):
-            print "*** Ouf, ça se réchauffe ..."
+            domoWebLogBook.logBookAddEvent("*** Ouf, ça se réchauffe ...")
             self.level = 1
          elif (self.level == 2) :
-            print "*** Enfin, ça se raffraichi ..."
+            domoWebLogBook.logBookAddEvent("*** Enfin, ça se raffraichi ...")
             self.level = 1
       return res
    
@@ -147,16 +146,13 @@ class remoteDevice() :
 
    @property
    def url(self) :
-      print "Getting remoteDevice.url()"
       return self.__url
 
    @url.setter
    def url(self, url) :
-      print "remoteDevice.url set to "+url
       self.__url = url
 
    def getValue(self) :
-      print "remoteDevice.getValue(URL='"+self.url+"')"
       try :
          socket = urllib.urlopen(self.url)
          return socket.read()
@@ -252,100 +248,3 @@ class remoteSwitch(domoWebSwitchDevice, remoteDevice) :
          return None 
 
 
-      
-
-
-
-#--------------------------------------------------------
-# A remote switch device
-#--------------------------------------------------------
-#class remoteSwitchDevice(domoWebSwitchDevice) :
-#   def __init__(self, urlOn, urlOff, urlStatus=None) :
-#      domoWebSwitchDevice.__init__(self)
-#      self.urlOn = urlOn
-#      self.urlOff = urlOff
-#      if (urlStatus is None) :
-#         self.statusSrc = None
-#      else :
-#         self.statusSrc = domoWebReadOnlyRemoteDevice(urlStatus)
-# 
-#   def on(self) :
-#      socket = urllib.urlopen(self.urlOn)
-#      domoWebSwitchDevice.on(self)
-#
-#   def off(self) :
-#      socket = urllib.urlopen(self.urlOff)
-#      domoWebSwitchDevice.off(self)
-#  
-#   def getValue(self) :
-#      #print("remoteSwitchDevice.getValue")
-#      if (self.statusSrc is None) :
-#         #print("   cached value")
-#         return int(self.domoWebSwitchDevice())
-#      else :
-#         #print("   get remote value")
-#         #print self.statusSrc.getValue()
-#         return int(self.statusSrc.getValue())
-
-
-
-      #--------------------------------------------------------
-#   Create a switch from a description :
-# . oneWire,address
-# . remote,urlOn,urlOff
-# . fake                 (does nothing, debuging purpose)
-#--------------------------------------------------------
-#def createSwitch(desc) :
-#   lines = string.split(desc, ",")
-#   if (lines[0] == "remote") :
-#      print "*** A remote switch "
-#      print "    -> " + lines[1]
-#      print "    -> " + lines[2]
-#      print "    -> " + lines[3]
-#      return remoteSwitchDevice(lines[1], lines[2],lines[3])
-#   elif (lines[0] == "fake") :
-#      return domoWebSwitchDevice()
-#   else :
-#      print "*** A FAIRE ***"
-#      gpioDevice.gpioDevice(int(value), gpioDevice.IN, gpioDevice.OFF)
-#      return None
-
-
-#--------------------------------------------------------
-# A basic read only device  (WARNING : to remove)
-#--------------------------------------------------------
-#class domoWebReadOnlyDevice() :
-#   def __init__(self) :
-#      pass
-#   def getValue(self) :
-#      pass
-    
-#--------------------------------------------------------
-# A remote read only device  (WARNING : to remove)
-#--------------------------------------------------------
-#class domoWebReadOnlyRemoteDevice(domoWebReadOnlyDevice) :
-#   def __init__(self,url) :
-#      domoWebReadOnlyDevice.__init__(self)
-#      self.url = url
-#
-#   # Re definition of domoWebReadOnlyDevice attibutes
-#   def getValue(self) :
-#      logger = logging.getLogger('domoweb').debug("Reading " + self.url)
-#      try :
-#         socket = urllib.urlopen(self.url)
-#         return socket.read()
-#      except IOError :
-#         
-#         return "0"
-
-#--------------------------------------------------------
-#   Create a thermometer from a description.
-# . oneWire,address
-# . remote,url
-#--------------------------------------------------------
-def createThermometer(desc) :
-   lines = string.split(desc, ",")
-   if (lines[0] == "remote") :
-      return remoteThermometer(lines[1])
-   elif (lines[0] == "oneWire") :
-      return oneWireDevice.oneWireThermometer(lines[0], lines[1])

@@ -47,7 +47,9 @@ class domoWebCircularDataCache(domoWebDataCache) :
          self.timestamps = self.timestamps[1:self.size] + [int((datetime.datetime.now() - datetime.datetime(1970, 1, 1)).total_seconds()*1000)]
 
    # Produce the n?n:nbEntry last records
-   def getData(self, n=0) :
+   def getData(self, n=0, start=None) :
+      if (start is not None) :
+         print "##### A FAIRE ..."
       if (('cacheVerbose' in debugFlags) or ('all' in debugFlags)) :
          logger.info("[cache.getData] " + str(self.nbEntry) + " / " + str(self.size))
       if ( n == 0 ) :
@@ -61,13 +63,20 @@ class domoWebCircularDataCache(domoWebDataCache) :
          n = self.nbEntry
       return self.timestamps[0:min(self.nbEntry, n)]
 
-   # Produce the n?n:nbEntry last records
-   def getTimeStampedData(self, n=0) :
+   # Produce at most the n?n:nbEntry last records
+   # Nothing earlier than start
+   def getTimeStampedData(self, n=0, start=None) :
       if (('cacheVerbose' in debugFlags) or ('all' in debugFlags)) :
          logger.info("[cache.getData] " + str(self.nbEntry) + " / " + str(self.size))
+
+      # Where do we start ?
+      s=0 # start index
+      if (start is not None) :
+         while (self.timestamps[s] < (start  - datetime.datetime(1970, 1, 1)).total_seconds()*1000) :
+            s = s + 1
       if ( n == 0 ) :
          n = self.nbEntry
-      return zip(self.timestamps[0:min(self.nbEntry, n)], self.data[0:min(self.nbEntry, n)])
+      return zip(self.timestamps[s:min(self.nbEntry, s+n)], self.data[s:min(self.nbEntry, s+n)])
    
    # Produce the mean on n?n:nbEntry last records
    def getMean(self, n=0) :

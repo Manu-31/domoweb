@@ -16,6 +16,7 @@ sys.setdefaultencoding('utf-8')
 import types
 import logging
 import json
+import datetime
 
 # Import available modules
 from domoWebModule import *
@@ -56,10 +57,11 @@ login_manager.init_app(app)
 def load_user(user_id):
     return User.get(user_id)
 
+
 #=============================================================
-# Some helper functions
+# Definition of the routes.
 #=============================================================
-   
+
 #-------------------------------------------------------------
 # Root route
 #-------------------------------------------------------------
@@ -67,39 +69,6 @@ def load_user(user_id):
 #@login_required
 def accueil():
    return redirect(url_for('menu', modName=defaultModule))
-
-#-------------------------------------------------------------
-# Creation of the menu list based on the selected module, connected
-# user, ...
-# Input
-#    module      : selected module
-# This function returns a templateData with data for the generic
-# header (with the menu)
-#    tabList     : list of available modules
-#    module      : the current selected module
-#-------------------------------------------------------------
-def menuTemplateData(module) :
-   return
-
-#=============================================================
-# Definition of the routes.
-#=============================================================
-#-------------------------------------------------------------
-# This one gives value for remote display
-#-------------------------------------------------------------
-@app.route("/json/<modName>/<value>")
-#@login_required
-def readValue(modName, value):
-   # Searching the module WARNING : module could be None
-   module = getDomoWebModuleByName(modName)
-   
-   values = module.templateData()
-   if (not (value in values)) :
-      logger.debug("Unkonwn value '"+value+"' for module "+module.name)
-
-   print "*** Will return " + str(values[value])
-
-   return Response(json.dumps(values[value]),mimetype='application/json')
 
 #-------------------------------------------------------------
 # Here is the route to access the defined modules
@@ -112,7 +81,8 @@ def menu(modName):
    if (('webui' in debugFlags) or ('all' in debugFlags)) :
       logger.debug("Requesting page /menu/"+modName+" (method "+request.method+")")
 
-   # Searching the module 
+   # Searching the module
+   # WARNING : chercher les attributs du module tab
    module = getDomoWebModuleByName(modName)
 
    # Build tabList for main menu
@@ -124,7 +94,8 @@ def menu(modName):
    # Build the template data
    templateData = {
       'templateTheme' : templateTheme,
-      'tabList'       : tabList
+      'tabList'       : tabList,
+      'startOfDay'    : datetime.datetime.combine(datetime.date.today(), datetime.time())
    }
    notification = None
    error = None
@@ -177,70 +148,6 @@ def menu(modName):
 
    return render_template(template, notification=notification, error=error, **templateData)
 
-         
-#-------------------------------------------------------------
-# Encore un essai, ...
-#-------------------------------------------------------------
-@app.route("/<modName>/<attribute>/<value>")
-#@login_required
-def setModuleParameter(modName, attribute, value):
-   print "Dans le module "+modName
-   print "   L'attribut  "+ attribute
-   print "        reçoit "+value
-
-#-------------------------------------------------------------
-# Run an action on a module.
-# . modName is the name of the module
-# . action is the action to run (modName.action() )
-# . destModule, if present, is the name of the module to display
-#   (eg if module is a switch, you may want to display the
-#   switch parent)
-#-------------------------------------------------------------
-@app.route("/do/<modName>/<action>")
-@app.route("/do/<modName>/<action>/<destModule>")
-#@login_required
-def do(modName, action,destModule=""):
-
-   # Searching the module WARNING : module could be None
-   module = getDomoWebModuleByName(modName)
-
-   if not destModule :
-      destModule=modName
-      
-   print "%%% Destination : '"+destModule+"'"
-   
-   if (('actions' in debugFlags) or ('all' in debugFlags)) :
-      logger.debug("Trying to run action '"+action+"' on '"+modName+"' (class '"+module.__class__.__name__+"')")
-   
-   print "Les actions sont"
-   print module.__class__.actions
-
-   if (hasattr(module, action)) :
-      print "** " + action + " est connue"
-      actionFunc = getattr(module, action)
-      print actionFunc
-      getattr(module, action)()
-      
-      if (hasattr(actionFunc, "isAModuleAction")) :
-         print "** C'est une action"
-      else :
-         print "** C'est PAS une action mon cochon"
-         print vars(actionFunc)
-         
-   if (action in module.__class__.actions) :
-      # Is the user allowed to run an action on this module ?
-      if (module.userCanWrite(current_user)) :
-         # Searching and calling the corresponding action
-         getattr(module, action)()
-
-         return redirect(url_for("menu", modName=destModule, notification="C'est fait"))
-      else :
-         return redirect(url_for("menu", modName=destModule, notification="Forbidden"))
-   else :
-      print("Action "+ module + "." + action +  " inconnue")
-      logger.debug("Action "+ module + "." + action +  " inconnue")
-      return redirect(url_for("menu", modName=module.name, notification="Erreur interne"))
-
 #-------------------------------------------------------------
 # Set attribute for a module
 #-------------------------------------------------------------
@@ -276,7 +183,7 @@ def setAttribute(modName, attribute, value, destModule=""):
    # Show the destination module plus a notification
    return redirect(url_for("menu", modName=destModule, notification=notif))
       
-
+         
 #-------------------------------------------------------------
 # List all available data
 #-------------------------------------------------------------
@@ -308,7 +215,7 @@ def logout():
     return redirect(url_for('menu', modName='aide'))
 
 #=============================================================
-# Build the webui from config file
+# Build the webui
 #=============================================================
 def buildWebui(config, l,  dbgFlg) :
    global debugFlags

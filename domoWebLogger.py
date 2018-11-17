@@ -15,8 +15,6 @@ def domoWebLoggerInit(config) :
    global logger
    global debugFlags
    
-   print "**** LOGGER GO ***"
-   
 #-------------------------------------------------------------
 # Default debuging
 #-------------------------------------------------------------

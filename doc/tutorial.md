@@ -135,9 +135,33 @@ configuration dès que l'on souhaite modifier un paramètre ?
 Heureusement non ! 
 
    On peut construire une page web dans laquelle les principaux
-paramètres pourront être édités.
+paramètres pourront être édités. Voici par exemple le contenu du
+fichier 'examples/edit.cfg'
 
-   [exemple]
+'''
+[tabs]
+aide = help
+debogage = debug
+therm-rw=thermo-rw
+therm-ro=thermo-ro
+login = signin
+
+[thermo-rw]
+type=oneWireThermometer
+address = 28-031464227dff
+html=thermometerEdit.html
+readAccess=manu
+writeAccess=manu
+
+[thermo-ro]
+type=oneWireThermometer
+address = 28-031464227dff
+html=thermometerGeneric.html
+readAccess=*
+'''
+
+   Ici, la version éditable du thermomètre n'est accessible qu'à un
+utilisateur. Les autres ne verront que la version en lecture seule.
 
    Attention, les paramètres ainsi modifiés ne le sont que durant la
 session en cours. Pour une prise en compte au prochain démarrage, il

@@ -6,7 +6,7 @@
       {% endfor %}
       <li class="w3-right w3-green">
         {% if current_user.is_authenticated %}
-            <a href="{{ url_for('logout') }}">{{ current_user.name() }}</a>
+            <a href="{{ url_for('logout') }}">{{ current_user.name() }}  <i class="fas fa-sign-out-alt w3-large"></i></a>
          {% else %}
             <a href="{{ url_for('menu', modName='login') }}">login</a>
 	 {% endif %}

@@ -8,7 +8,6 @@ class domoWebAction(domoWebModule.domoWebModule) :
     def __init__(self, name=""):
         if (name == "") :
             name="domoWebAction-"+str(domoWebAction.nbDomoWebActions)
-            print 'Name = ' +name
         domoWebModule.domoWebModule.__init__(self, name)
         
         self.addAttribute("object", None)

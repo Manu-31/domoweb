@@ -19,6 +19,7 @@ import domoWebDataCache
 
 from domoWebConfigParser import *
 import domoWebLogger 
+import domoWebLogBook
 
 #=============================================================
 # Let's go
@@ -46,6 +47,11 @@ configParserInit(args.configFileName)
 domoWebLogger.domoWebLoggerInit(config)
 logger = domoWebLogger.logger
 debugFlags = domoWebLogger.debugFlags
+
+#-------------------------------------------------------------
+# The logBook
+#-------------------------------------------------------------
+domoWebLogBook.logBookInit(config, logger, debugFlags)
 
 #-------------------------------------------------------------
 # User management

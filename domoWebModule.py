@@ -7,7 +7,9 @@
 #=============================================================
 import string
 import logging
+
 from domoWebUser import *
+import domoWebLogBook
 
 def printUserList(l) :
    if (l is None) :
@@ -29,7 +31,6 @@ def printUserList(l) :
 class domoWebModule(object) :
    # We need to keep trace of the modules that have been defined
    domoWebModules = []
-   actions = []
    debugFlags = {}
    
    # The constructor *must* be called by any subclass constructor
@@ -126,9 +127,8 @@ class domoWebModule(object) :
    # Set an attribute value. should use mod.attr = val with a setter
    def setAttribute(self, attr, val) :
       print "     **** ATTENTION, ON DOIT VERIFIER EXISTENCE ET DROIT !! *** "
-      print "     **** ET ON DOIT ENREGISTRER CA DANS LE LIVRE DE BORD!! *** "
       setattr(self, attr, val)
-      
+      domoWebLogBook.logBookAddEvent(self.name+"."+attr+" <- "+str(val))
 
    # Get attribute list
    def getAttributes(self) :
@@ -268,41 +268,6 @@ def getDomoWebModuleByName(name) :
       if x.name == name :
          return x
    return None
-
-#-------------------------------------------------------------
-#
-#-------------------------------------------------------------
-def domoWebModuleAction(func):
-   print("domoWebModuleAction 1")
-   print func
-
-   def action(self) :
-      print("Running Action "+func.__name__)
-      return func(self)
-
-   print("domoWebModuleAction 3")
-   action.isAModuleAction = True
-
-   print vars(action)
-
-   return action
-
-#-------------------------------------------------------------
-#
-#-------------------------------------------------------------
-def domoWebModuleAttribute(func):
-   print("domoWebModuleAttribute 1")
-   print func
-   
-   def action(self) :
-      print("domoWebModuleAttribute 2")
-      return func(self)
-
-   print("domoWebModuleAttribute 3")
-   action.isAModuleAttribute = True
-   print vars(action)
-
-   return action
 
 #-------------------------------------------------------------
 # Pour pouvoir logguer sur une page web
